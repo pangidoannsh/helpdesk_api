@@ -39,7 +39,7 @@ $ yarn install
 $ yarn run start
 
 # watch mode
-$ yarn run start:dev
+$ yarn serve
 
 # production mode
 $ yarn run start:prod
