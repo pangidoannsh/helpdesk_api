@@ -30,13 +30,14 @@ export class User {
 
     @Column({
         type: "enum",
-        name: "role",
+        name: "level",
         nullable: false,
         enumName: "user_role",
         enum: ["pegawai", "agent", "supervisor"],
         default: "pegawai"
     })
-    role: string
+    level: string
+
     @Column({
         type: "bool",
         name: "isActived",
