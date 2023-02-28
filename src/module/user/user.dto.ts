@@ -15,3 +15,17 @@ export class LoginUserDTO {
     @IsNotEmpty()
     password: string;
 }
+
+export class UserDTO {
+    id: number;
+    phone: string;
+    password: string;
+    name: string;
+    level: string;
+    isActived: boolean
+}
+
+export class UpdateUserBySupervisorDTO {
+    level: string;
+    isActived: boolean;
+}
