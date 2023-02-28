@@ -1,8 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './module/user/user.module';
 import { TicketModule } from './module/ticket/ticket.module';
+import { AuthModule } from './module/auth/auth.module';
 import entities from './entity';
+import { AuthMiddleware } from './middleware/auth.middleware';
+import { SupervisorMiddleware } from './middleware/supervisor.middleware';
+import { UserController } from './module/user/user.controller';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -14,6 +18,27 @@ import entities from './entity';
     database: "helpdesk_it_db",
     entities,
     synchronize: true
-  }), UserModule, TicketModule]
+  }), UserModule, TicketModule, AuthModule]
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware)
+      .exclude(
+        {
+          path: "/auth/login",
+          method: RequestMethod.POST
+        },
+        {
+          path: "/register",
+          method: RequestMethod.POST
+        }
+      ).forRoutes("*")
+      .apply(SupervisorMiddleware)
+      .forRoutes(
+        {
+          path: "/users",
+          method: RequestMethod.GET
+        }
+      )
+  }
+}

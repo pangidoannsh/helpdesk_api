@@ -13,5 +13,5 @@ export class LoginUserDTO {
     @IsNotEmpty()
     phone: string;
     @IsNotEmpty()
-    passwrod: string;
+    password: string;
 }
