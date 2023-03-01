@@ -5,8 +5,6 @@ import { TicketModule } from './module/ticket/ticket.module';
 import { AuthModule } from './module/auth/auth.module';
 import entities from './entity';
 import { AuthMiddleware } from './middleware/auth.middleware';
-import { SupervisorMiddleware } from './middleware/supervisor.middleware';
-import { UserController } from './module/user/user.controller';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -29,16 +27,13 @@ export class AppModule implements NestModule {
           method: RequestMethod.POST
         },
         {
+          path: "/auth/refresh-token",
+          method: RequestMethod.POST
+        },
+        {
           path: "/register",
           method: RequestMethod.POST
         }
       ).forRoutes("*")
-      .apply(SupervisorMiddleware)
-      .forRoutes(
-        {
-          path: "/users",
-          method: RequestMethod.GET
-        }
-      )
   }
 }

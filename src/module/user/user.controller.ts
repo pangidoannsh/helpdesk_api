@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe } from '@nestjs/common';
-import { Put } from '@nestjs/common/decorators/http/request-mapping.decorator';
+import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe, Put } from '@nestjs/common';
 import { Response } from 'express';
-import { CreateUserDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller()
@@ -21,8 +20,15 @@ export class UserController {
         return this.userService.create(payload);
     }
 
-    @Put('user/:id/edit-level')
-    editLevel(@Param("id") param: string, @Body() body: any, @Res() res: Response) {
+    @Put('user')
+    async editData(@Body() data: any, @Res() res: Response) {
+        const updateData = await this.userService.updateData(data.user.id, data);
+        res.status(201).send(updateData);
+    }
 
+    @Put('user/:id/edit-access')
+    async editLevel(@Param("id") param: number, @Body() data: Partial<UpdateUserBySupervisorDTO>, @Res() res: Response) {
+        const updateUser = await this.userService.updateBySupervisor(param, data);
+        res.status(201).send(updateUser)
     }
 }

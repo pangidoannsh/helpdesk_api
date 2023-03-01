@@ -3,7 +3,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User as UserEntity } from 'src/entity';
 import { Repository } from "typeorm";
 import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
+
 @Injectable()
 export class UserService {
     constructor(
@@ -30,6 +31,21 @@ export class UserService {
             phone, name, password: encodePassword(rawPassword)
         })
         return this.userRepository.save(newUser);
+    }
+    async updateData(id: number, data: UserDTO) {
+        const { phone, name } = data;
+        await this.userRepository.update({ id }, {
+            phone, name
+        })
+        return await this.userRepository.findOneBy({ id });
+    }
 
+    async updateBySupervisor(id: number, data: Partial<UpdateUserBySupervisorDTO>) {
+        await this.userRepository.update({ id }, {
+            level: data.level,
+            isActived: data.isActived
+        })
+        const updateUser = await this.userRepository.findOneBy({ id });
+        return updateUser;
     }
 }
