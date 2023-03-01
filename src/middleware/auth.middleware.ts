@@ -19,7 +19,12 @@ export class AuthMiddleware implements NestMiddleware {
 
             if (userData) {
                 if (userData.isActived) {
-                    req.body = { ...req.body, user_level: userData.level }
+                    req.body = {
+                        ...req.body, user: {
+                            id: userData.id,
+                            level: userData.level
+                        }
+                    }
                     next()
                 }
                 else throw new NotAcceptableException({ error: "Akun belum diaktivasi" })

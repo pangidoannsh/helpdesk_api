@@ -27,6 +27,10 @@ export class AppModule implements NestModule {
           method: RequestMethod.POST
         },
         {
+          path: "/auth/refresh-token",
+          method: RequestMethod.POST
+        },
+        {
           path: "/register",
           method: RequestMethod.POST
         }

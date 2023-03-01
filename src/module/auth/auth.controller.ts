@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
-import { Body, Post, Res, UsePipes } from '@nestjs/common/decorators';
+import { Body, Post, Res, Req, UsePipes, Get } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { LoginUserDTO } from '../user/user.dto';
 import { AuthService } from './auth.service';
 
@@ -14,10 +14,17 @@ export class AuthController {
     @Post('login')
     @UsePipes(ValidationPipe)
     async login(@Body() payload: LoginUserDTO, @Res() res: Response) {
-        const access_token = await this.authService.validationUser(payload.phone, payload.password);
+        const token = await this.authService.validationUser(payload.phone, payload.password);
 
-        if (access_token) {
-            res.status(200).send({ access_token })
+        if (token) {
+            res.status(200).send(token)
         }
+    }
+
+    @Post('refresh-token')
+    async refreshToken(@Body() payload: any, @Res() res: Response) {
+        const refreshToken = payload.refresh_token;
+        const token = await this.authService.refreshAccessToken(refreshToken);
+        res.send(token)
     }
 }

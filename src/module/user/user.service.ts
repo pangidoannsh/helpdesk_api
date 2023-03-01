@@ -32,8 +32,15 @@ export class UserService {
         })
         return this.userRepository.save(newUser);
     }
+    async updateData(id: number, data: UserDTO) {
+        const { phone, name } = data;
+        await this.userRepository.update({ id }, {
+            phone, name
+        })
+        return await this.userRepository.findOneBy({ id });
+    }
 
-    async updateLevel(id: number, data: Partial<UpdateUserBySupervisorDTO>) {
+    async updateBySupervisor(id: number, data: Partial<UpdateUserBySupervisorDTO>) {
         await this.userRepository.update({ id }, {
             level: data.level,
             isActived: data.isActived
