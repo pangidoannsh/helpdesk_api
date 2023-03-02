@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe, Put, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
+import { LevelGuard } from 'src/guard/level.guard';
 import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
 import { UserService } from './user.service';
 
@@ -11,7 +12,7 @@ export class UserController {
     ) { }
 
     @Get('user')
-    @UseGuards(JwtGuard)
+    @UseGuards(JwtGuard, new LevelGuard("supervisor"))
     index() {
         return this.userService.all()
     }
