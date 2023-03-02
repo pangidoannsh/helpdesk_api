@@ -45,13 +45,7 @@ export class AuthService {
 
     async refreshAccessToken(refTokenUser: string) {
         const payload = await this.decodeToken(refTokenUser);
-        const ref_token = await this
-            .refreshToken
-            .createQueryBuilder("refresh_token")
-            .where("refresh_token.id = :id", { id: payload.jid })
-            .leftJoinAndSelect('refresh_token.user', 'user.refeshToken')
-            .getOne()
-
+        const ref_token = await this.refreshToken.findOneBy({ id: payload.jid });
         return ref_token.user;
     }
 

@@ -20,20 +20,20 @@ import { AuthMiddleware } from './middleware/auth.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware)
-      .exclude(
-        {
-          path: "/auth/login",
-          method: RequestMethod.POST
-        },
-        {
-          path: "/auth/refresh-token",
-          method: RequestMethod.POST
-        },
-        {
-          path: "/register",
-          method: RequestMethod.POST
-        }
-      ).forRoutes("*")
+    // consumer.apply(AuthMiddleware)
+    //   .exclude(
+    //     {
+    //       path: "/auth/login",
+    //       method: RequestMethod.POST
+    //     },
+    //     {
+    //       path: "/auth/refresh-token",
+    //       method: RequestMethod.POST
+    //     },
+    //     {
+    //       path: "/register",
+    //       method: RequestMethod.POST
+    //     }
+    //   ).forRoutes("*")
   }
 }

@@ -46,7 +46,7 @@ export class User {
     })
     isActived: boolean
 
-    @OneToMany(() => RefreshToken, refreshToken => refreshToken.user, { eager: true })
+    @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
     refreshTokens: RefreshToken[]
 
 }

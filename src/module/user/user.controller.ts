@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe, Put, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
+import { JwtGuard } from 'src/guard/jwt.guard';
 import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
 import { UserService } from './user.service';
 
@@ -10,6 +11,7 @@ export class UserController {
     ) { }
 
     @Get('user')
+    @UseGuards(JwtGuard)
     index() {
         return this.userService.all()
     }
@@ -21,8 +23,9 @@ export class UserController {
     }
 
     @Put('user')
-    async editData(@Body() data: any, @Res() res: Response) {
-        const updateData = await this.userService.updateData(data.user.id, data);
+    @UseGuards(JwtGuard)
+    async editData(@Req() req, @Body() data: any, @Res() res: Response) {
+        const updateData = await this.userService.updateData(req.user.id, data);
         res.status(201).send(updateData);
     }
 
@@ -31,4 +34,5 @@ export class UserController {
         const updateUser = await this.userService.updateBySupervisor(param, data);
         res.status(201).send(updateUser)
     }
+
 }

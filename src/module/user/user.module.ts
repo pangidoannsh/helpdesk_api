@@ -15,16 +15,16 @@ import { MiddlewareConsumer } from '@nestjs/common/interfaces';
 
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(SupervisorMiddleware)
-      .forRoutes(
-        {
-          path: "/user",
-          method: RequestMethod.GET
-        },
-        {
-          path: "/user/:id/edit-access",
-          method: RequestMethod.PUT
-        }
-      )
+    // consumer.apply(SupervisorMiddleware)
+    //   .forRoutes(
+    //     {
+    //       path: "/user",
+    //       method: RequestMethod.GET
+    //     },
+    //     {
+    //       path: "/user/:id/edit-access",
+    //       method: RequestMethod.PUT
+    //     }
+    //   )
   }
 }

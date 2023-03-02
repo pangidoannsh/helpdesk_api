@@ -14,6 +14,6 @@ export class RefreshToken {
     @Column()
     expiredAt: Date;
 
-    @ManyToOne(() => User, user => user.refreshTokens)
+    @ManyToOne(() => User, user => user.refreshTokens, { eager: true })
     user: User;
 }
