@@ -6,6 +6,6 @@ export class LevelGuard implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
         const { user } = context.switchToHttp().getRequest();
         if (user.level === this.level) return true;
-        throw new ForbiddenException({ error: "User Level Supervisor Required" })
+        throw new ForbiddenException("User Level Supervisor Required")
     }
 }

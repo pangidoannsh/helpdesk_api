@@ -10,14 +10,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(private readonly userService: UserService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: true,
+            ignoreExpiration: false,
             secretOrKey: jwtConfig.secret
         })
     }
 
     async validate(payload: any) {
         const user = await this.userService.findById(payload.id);
-        if (!user.isActived) throw new UnauthorizedException({ error: "User Belum Aktif" })
+
+        if (!user.isActived) throw new UnauthorizedException("User Belum Aktif");
+
         return user;
     }
 }
