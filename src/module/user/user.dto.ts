@@ -7,6 +7,8 @@ export class CreateUserDTO {
     password: string;
     @IsNotEmpty()
     name: string;
+    @IsNotEmpty()
+    fungsi: string;
 }
 
 export class LoginUserDTO {

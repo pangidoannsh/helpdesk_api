@@ -1,10 +1,15 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './module/user/user.module';
 import { TicketModule } from './module/ticket/ticket.module';
 import { AuthModule } from './module/auth/auth.module';
 import entities from './entity';
-import { AuthMiddleware } from './middleware/auth.middleware';
+import { CategoryModule } from './module/category/category.module';
+import { TicketMessageModule } from './module/ticket-message/ticket-message.module';
+import { FeedbackModule } from './module/feedback/feedback.module';
+import { ResponsesController } from './module/responses/responses.controller';
+import { ResponsesModule } from './module/responses/responses.module';
+import { FungsiModule } from './module/fungsi/fungsi.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -16,24 +21,11 @@ import { AuthMiddleware } from './middleware/auth.middleware';
     database: "helpdesk_it_db",
     entities,
     synchronize: true
-  }), UserModule, TicketModule, AuthModule]
+  }), UserModule, TicketMessageModule, TicketModule, AuthModule, CategoryModule, FeedbackModule, ResponsesModule, FungsiModule],
+  controllers: [],
+  providers: []
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    // consumer.apply(AuthMiddleware)
-    //   .exclude(
-    //     {
-    //       path: "/auth/login",
-    //       method: RequestMethod.POST
-    //     },
-    //     {
-    //       path: "/auth/refresh-token",
-    //       method: RequestMethod.POST
-    //     },
-    //     {
-    //       path: "/register",
-    //       method: RequestMethod.POST
-    //     }
-    //   ).forRoutes("*")
   }
 }

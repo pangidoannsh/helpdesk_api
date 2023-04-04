@@ -5,15 +5,15 @@ import { LevelGuard } from 'src/guard/level.guard';
 import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
 import { UserService } from './user.service';
 
-@Controller()
+@Controller('user')
 export class UserController {
     constructor(
         private readonly userService: UserService
     ) { }
 
-    @Get('user')
-    @UseGuards(JwtGuard, new LevelGuard("supervisor"))
-    index() {
+    @Get()
+    @UseGuards(JwtGuard, new LevelGuard('supervisor'))
+    async index() {
         return this.userService.all()
     }
 
@@ -23,14 +23,14 @@ export class UserController {
         return this.userService.create(payload);
     }
 
-    @Put('user')
+    @Put()
     @UseGuards(JwtGuard)
-    async editData(@Req() req, @Body() data: any, @Res() res: Response) {
+    async editData(@Req() req: any, @Body() data: any, @Res() res: Response) {
         const updateData = await this.userService.updateData(req.user.id, data);
         res.status(201).send(updateData);
     }
 
-    @Put('user/:id/edit-access')
+    @Put(':id/edit-access')
     async editLevel(@Param("id") param: number, @Body() data: Partial<UpdateUserBySupervisorDTO>, @Res() res: Response) {
         const updateUser = await this.userService.updateBySupervisor(param, data);
         res.status(201).send(updateUser)

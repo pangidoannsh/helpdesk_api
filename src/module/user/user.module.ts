@@ -3,8 +3,6 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entity';
-import { SupervisorMiddleware } from 'src/middleware/supervisor.middleware';
-import { RequestMethod } from '@nestjs/common/enums';
 import { MiddlewareConsumer } from '@nestjs/common/interfaces';
 
 @Module({

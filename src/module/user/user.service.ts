@@ -4,6 +4,7 @@ import { User as UserEntity } from 'src/entity';
 import { Repository } from "typeorm";
 import { encodePassword } from 'src/utils/bcrypt';
 import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
+import { BadRequestException } from '@nestjs/common/exceptions';
 
 @Injectable()
 export class UserService {
@@ -12,8 +13,13 @@ export class UserService {
         private userRepository: Repository<UserEntity>
     ) { }
 
-    all() {
-        return this.userRepository.find();
+    async all() {
+        let result: UserEntity[] = [];
+        await this.userRepository.find().then(res => {
+            result = res;
+        });
+
+        return result.map(data => ({ ...data }));
     }
 
     findById(id: number) {
@@ -21,16 +27,23 @@ export class UserService {
     }
 
     findByPhone(phone: string) {
-        return this.userRepository.findOneBy({ phone })
+        return this.userRepository.createQueryBuilder('user')
+            .addSelect('user.password')
+            .where({ phone })
+            .getOne();
     }
 
     create(userData: CreateUserDTO) {
-        const { phone, name, password: rawPassword } = userData;
+        const { phone, name, password: rawPassword, fungsi } = userData;
 
-        const newUser = this.userRepository.create({
-            phone, name, password: encodePassword(rawPassword)
-        })
-        return this.userRepository.save(newUser);
+        try {
+            const newUser = this.userRepository.create({
+                phone, name, password: encodePassword(rawPassword), fungsi
+            })
+            return this.userRepository.save(newUser);
+        } catch (e) {
+            throw new BadRequestException();
+        }
     }
     async updateData(id: number, data: UserDTO) {
         const { phone, name } = data;

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, NotAcceptableException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotAcceptableException, BadGatewayException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { refreshTokenConfig } from 'src/config/jwt.config';
@@ -21,16 +21,26 @@ export class AuthService {
 
         if (userDB) {
             if (comparePassword(password, userDB.password)) {
-                const access_token = await this.jwtService.signAsync(
-                    { id: userDB.id, name: userDB.name, level: userDB.level, isActived: userDB.isActived }
-                );
+
+                // setup data
+                const user_data = {
+                    id: userDB.id, name: userDB.name, level: userDB.level,
+                    isActived: userDB.isActived, fungsi: userDB.fungsi
+                };
+                // generate jwt access token
+                const access_token = await this.jwtService.signAsync(user_data);
+                // generate jwt refresh token
                 const refresh_token = await this.createRefreshToken(userDB);
 
-                return { access_token, refresh_token };
+                return { access_token, refresh_token, user_data };
             }
             else throw new UnauthorizedException({ error: "Password Salah" })
         }
         else throw new UnauthorizedException({ error: "Nomor Telepon Tidak ditemukan" })
+        // try {
+        // } catch (e) {
+        //     throw new BadGatewayException()
+        // }
     }
 
     getUser(token: string) {
