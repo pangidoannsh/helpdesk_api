@@ -22,4 +22,15 @@ export class CategoryService {
         });
         return await this.categoryRepo.save(createCategory)
     }
+
+    async update(id: any, payload: Partial<CreateCategoryDTO>) {
+        await this.categoryRepo.update({ id }, {
+            categoryName: payload.name,
+            parentOf: payload.parent
+        })
+        return this.categoryRepo.findOneBy({ id });
+    }
+    async delete(id: any) {
+        return await this.categoryRepo.delete({ id })
+    }
 }

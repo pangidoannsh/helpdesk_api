@@ -11,6 +11,7 @@ export class CreateTicketDTO {
     category: any;
 
     priority: any;
+
     @IsNotEmpty()
     fungsi: string;
 }

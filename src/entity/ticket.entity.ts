@@ -1,7 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, OneToOne, Generated, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Category } from "./category.entity";
 import { Feedback } from "./feedback.entity";
-import { Fungsi } from "./fungsi.entity";
 import { TicketMessage } from "./ticket-message.entity";
 import { User } from "./user.entity";
 

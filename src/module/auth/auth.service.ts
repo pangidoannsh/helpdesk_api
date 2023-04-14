@@ -37,10 +37,6 @@ export class AuthService {
             else throw new UnauthorizedException({ error: "Password Salah" })
         }
         else throw new UnauthorizedException({ error: "Nomor Telepon Tidak ditemukan" })
-        // try {
-        // } catch (e) {
-        //     throw new BadGatewayException()
-        // }
     }
 
     getUser(token: string) {
@@ -52,7 +48,6 @@ export class AuthService {
             else throw new UnauthorizedException("Unautheticated User")
         }
     }
-
     async refreshAccessToken(refTokenUser: string) {
         const payload = await this.decodeToken(refTokenUser);
         const ref_token = await this.refreshToken.findOneBy({ id: payload.jid });

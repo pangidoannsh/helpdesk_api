@@ -12,11 +12,12 @@ export class TicketMessageService {
     ) { }
 
     async allByTicket(ticketId: any) {
-        const result = await this.ticketMessageRepo.createQueryBuilder('message')
-            .leftJoinAndSelect('message.userCreated', 'user')
-            .select(['message.id', 'message.content', 'message.createdAt', 'user.id', 'user.name', 'user.level'])
-            .where("message.ticketId = :ticketId", { ticketId })
-            .getMany();
+        const result = await this.ticketMessageRepo.findBy({ ticket: { id: ticketId } })
+        // createQueryBuilder('message')
+        // .leftJoinAndSelect('message.userCreated', 'user')
+        // .select(['message.id', "message.ticketId", 'message.content', 'message.createdAt', 'user.id', 'user.name', 'user.level'])
+        // .where("message.ticketId = :ticketId", { ticketId })
+        // .getMany();
 
         const messageData = result.map((data: any) => {
             const { createdAt } = data;
@@ -36,12 +37,20 @@ export class TicketMessageService {
             userCreated: { id: user.id },
             quote
         })
-        const newTicket = await this.ticketMessageRepo.save(createMessage);
+        const saveTicket = await this.ticketMessageRepo.save(createMessage);
+        const newTicket = await this.ticketMessageRepo.findOneBy({ id: saveTicket.id })
+        // .createQueryBuilder('message')
+        //     .leftJoinAndSelect('message.userCreated', 'user')
+        //     .select(['message.id', "message.ticketId", 'message.content', 'message.createdAt', 'user.id', 'user.name', 'user.level'])
+        //     .where("message.id = :id", { id: saveTicket.id })
+        //     .getOne()
+
         const { createdAt } = newTicket;
         if (createdAt) {
             const { date, time } = displayDate(createdAt);
             return { ...newTicket, createdAt: date + ' ' + time }
         }
+
         return newTicket
     }
 }

@@ -10,10 +10,10 @@ export class TicketMessage {
     })
     id: number
 
-    @ManyToOne(() => User, user => user.messageCreater)
+    @ManyToOne(() => User, user => user.messageCreater, { eager: true })
     userCreated: User;
 
-    @ManyToOne(() => Ticket, ticket => ticket.ticketMessage)
+    @ManyToOne(() => Ticket, ticket => ticket.ticketMessage, { eager: true })
     ticket: Ticket
 
     @Column({

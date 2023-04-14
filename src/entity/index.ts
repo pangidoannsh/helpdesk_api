@@ -6,8 +6,18 @@ import { TicketMessage } from "./ticket-message.entity";
 import { Feedback } from "./feedback.entity";
 import { Fungsi } from "./fungsi.entity";
 import { Responses } from "./responses.entity";
+import { Product } from "./product.entity";
+import { Configuration } from "./configuration.entity";
+import { TimeSchedule } from "./time-schedule.entity";
+import { Faq } from "./faq.entity";
 
-const entities = { User, Ticket, RefreshToken, Category, TicketMessage, Feedback, Fungsi, Responses };
+const entities = {
+    User, Ticket, RefreshToken, Category, TicketMessage, Feedback, Fungsi, Responses, Product, Configuration, TimeSchedule,
+    Faq
+};
 
-export { User, Ticket, RefreshToken, Category, TicketMessage, Feedback, Fungsi, Responses };
+export {
+    User, Ticket, RefreshToken, Category, TicketMessage, Feedback, Fungsi, Responses, Product, Configuration, TimeSchedule,
+    Faq
+};
 export default entities

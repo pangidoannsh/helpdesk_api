@@ -18,19 +18,32 @@ export function displayDate(dateArgument?: Date): { date: string, time: string }
     }
 }
 
-export function displayDateFromArrayObject(data: Array<any>, key: string) {
-    const result = data.map((data: any) => {
+export function displayDateFromArrayObject(datas: Array<any>, key: string, withoutTime?: boolean) {
+    const result = datas.map((data: any) => {
         const dateKey = data[key];
 
         if (dateKey) {
             const { date, time } = displayDate(dateKey);
+            if (withoutTime) {
+                return { ...data, [key]: date }
+            }
             return { ...data, [key]: date + ' ' + time }
         }
         return data
     })
     return result;
 }
-
+export function displayDateFromObject(data: any, key: string, withoutTime?: boolean) {
+    const dateKey = data[key];
+    if (dateKey) {
+        const { date, time } = displayDate(dateKey);
+        if (withoutTime) {
+            return { ...data, [key]: date }
+        }
+        return { ...data, [key]: date + ' ' + time }
+    }
+    return data;
+}
 export function getExpiredDate(longDays: number) {
     const date = new Date();
     date.setDate(date.getDate() + longDays);

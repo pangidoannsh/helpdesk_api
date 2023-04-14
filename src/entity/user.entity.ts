@@ -1,8 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, OneToOne } from "typeorm";
 import { Fungsi } from "./fungsi.entity";
 import { RefreshToken } from "./refresh-token.entity";
 import { TicketMessage } from "./ticket-message.entity";
 import { Ticket } from "./ticket.entity";
+import { TimeSchedule } from "./time-schedule.entity";
+import { Faq } from "./faq.entity";
 
 @Entity()
 export class User {
@@ -63,6 +65,12 @@ export class User {
 
     @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.userCreated)
     messageCreater: TicketMessage[];
+
+    @OneToMany(() => Faq, faq => faq.userCreate)
+    faqCreator: Faq[]
+
+    @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.user)
+    schedule: TimeSchedule[];
 
     @Column({
         length: 50

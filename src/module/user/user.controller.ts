@@ -16,7 +16,11 @@ export class UserController {
     async index() {
         return this.userService.all()
     }
-
+    @Get('employee')
+    @UseGuards(JwtGuard, new LevelGuard('agent', 'supervisor'))
+    getEmployee() {
+        return this.userService.allEmployee();
+    }
     @Post('register')
     @UsePipes(ValidationPipe)
     register(@Body() payload: CreateUserDTO) {
@@ -36,4 +40,9 @@ export class UserController {
         res.status(201).send(updateUser)
     }
 
+    @Get('/agent')
+    @UseGuards(JwtGuard, new LevelGuard("supervisor"))
+    async getAgent() {
+        return this.userService.allAgent();
+    }
 }

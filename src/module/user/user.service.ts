@@ -22,7 +22,13 @@ export class UserService {
         return result.map(data => ({ ...data }));
     }
 
-    findById(id: number) {
+    async allEmployee() {
+        return await this.userRepository.findBy({ level: "pegawai" });
+    }
+    async allAgent() {
+        return await this.userRepository.findBy({ level: "agent" });
+    }
+    findById(id: number): Promise<UserEntity> {
         return this.userRepository.findOneBy({ id })
     }
 

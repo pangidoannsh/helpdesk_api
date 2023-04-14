@@ -15,7 +15,6 @@ export class AuthController {
     @Get('profile')
     @UseGuards(JwtGuard)
     async getProfile(@Req() req: Request, @Res() res: Response) {
-
         res.send(req.user);
     }
     @Post('login')
