@@ -2,20 +2,41 @@ import { Injectable } from '@nestjs/common';
 import { Ticket } from 'src/entity';
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
-import { CreateTicketDTO, EditStatusTicketDTO, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, EditTicketDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketMessageService } from '../ticket-message/ticket-message.service';
 import { displayDate, displayDateFromArrayObject, getExpiredDate } from 'src/utils/date';
+import { WhatsappService } from '../notification/whatsapp.service';
+import { AgentScheduleService } from '../notification/agent-schedule.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class TicketService {
     constructor(
         @InjectRepository(Ticket)
         private readonly ticketRepository: Repository<Ticket>,
-        private readonly messageService: TicketMessageService
+        private readonly messageService: TicketMessageService,
+        private readonly notification: NotificationService
     ) { }
 
-    async all(filter?: TicketFilterDTO) {
+    async checkExpirated(allData: Ticket[], orderByStatus?: boolean) {
+        const currentDate = new Date();
+        const result = await Promise.all(
+            allData.map(data => {
+                if (data.status !== "expired" && data.expiredAt < currentDate) {
+                    return this.updateStatus(data.id, { status: "expired" });
+                }
+                return data;
+            })
+        );
+        const enumStatus = ["open", "process", "done", "expired"];
+
+        if (orderByStatus) result.sort((a, b) => enumStatus.indexOf(a.status) - enumStatus.indexOf(b.status));
+        return result;
+    };
+
+    async getLengthAll(filter: TicketFilterDTO) {
         const { subject, category, fungsi, priority, status } = filter;
+
         const queryBuilder = this.ticketRepository.createQueryBuilder('ticket')
             .leftJoinAndSelect('ticket.userOrderer', 'user')
             .leftJoinAndSelect('ticket.category', 'category')
@@ -26,26 +47,17 @@ export class TicketService {
         if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
         if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
 
-        const allData = await queryBuilder.orderBy('ticket.createdAt', 'DESC').getMany();
-        const currentDate = new Date();
-        const checkExpiratingData = allData.map(data => {
-            if (data.status !== "expired" && data.expiredAt < currentDate) {
-                return this.updateStatus(data.id, { status: "expired" });
-            }
-            return data;
-        });
-        return displayDateFromArrayObject(checkExpiratingData, 'createdAt');
+        const lengthData = await queryBuilder.orderBy('ticket.createdAt', 'DESC').getCount();
+        return lengthData;
     }
 
-    async getByUser(user: any, filter: TicketFilterDTO) {
+    async all(filter?: TicketFilterDTO) {
         const { subject, category, fungsi, priority, status } = filter;
-
-        const userId = user.id;
-        const queryBuilder: SelectQueryBuilder<Ticket> = this.ticketRepository.createQueryBuilder('ticket')
-            .where('ticket.userOrdererId = :userId', { userId })
+        const queryBuilder = this.ticketRepository.createQueryBuilder('ticket')
+            .leftJoinAndSelect('ticket.userOrderer', 'user')
             .leftJoinAndSelect('ticket.category', 'category')
+            .leftJoinAndSelect('ticket.fungsi', 'fungsi')
 
-        // query
         if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
         if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
         if (status) queryBuilder.andWhere('ticket.status = :status', { status });
@@ -53,23 +65,59 @@ export class TicketService {
         if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
 
         const allData = await queryBuilder.orderBy('ticket.createdAt', 'DESC').getMany();
-        // const currentDate = new Date();
-        // const checkExpiratingData = allData.map(data => {
-        //     if (data.status !== "expired" && data.expiredAt < currentDate) {
-        //         return this.updateStatus(data.id, { status: "expired" });
-        //     }
-        //     return data;
-        // })
-        const result = allData.map((data: any) => {
-            const { createdAt } = data;
 
-            if (createdAt) {
-                const { date, time } = displayDate(createdAt);
-                return { ...data, createdAt: date + ' ' + time }
-            }
-            return data
-        })
-        return result;
+        return await this.checkExpirated(allData);
+    }
+
+    async getByDashboard(filter?: TicketFilterDTO) {
+        const { subject, category, fungsi, priority, status, limit, offset } = filter;
+        const queryBuilder = this.ticketRepository.createQueryBuilder('ticket')
+            .leftJoinAndSelect('ticket.userOrderer', 'user')
+            .leftJoinAndSelect('ticket.category', 'category')
+            .leftJoinAndSelect('ticket.fungsi', 'fungsi')
+
+        if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
+        if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
+        if (status) queryBuilder.andWhere('ticket.status = :status', { status });
+        if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
+        if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
+
+        queryBuilder.orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC')
+
+        if (offset) queryBuilder.offset(offset);
+        if (limit) queryBuilder.limit(limit);
+
+        const allData = await queryBuilder.getMany();
+
+        return await this.checkExpirated(allData);
+    }
+
+    async getByUser(user: any, filter: TicketFilterDTO) {
+        const { subject, category, fungsi, priority, status, offset, limit } = filter;
+
+        const userId = user.id;
+        const queryBuilder: SelectQueryBuilder<Ticket> = this.ticketRepository.createQueryBuilder('ticket')
+            .where('ticket.userOrdererId = :userId', { userId })
+            .leftJoinAndSelect('ticket.category', 'category')
+            .leftJoinAndSelect('ticket.fungsi', 'fungsi')
+
+        // filter query
+        if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
+        if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
+        if (status) queryBuilder.andWhere('ticket.status = :status', { status });
+        if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
+        if (fungsi) queryBuilder.andWhere('ticket.fungsiId = :fungsi', { fungsi });
+
+        queryBuilder.orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC');
+
+        // pagination query
+        if (offset) queryBuilder.offset(offset);
+        if (limit) queryBuilder.limit(limit)
+
+        // get data
+        const allData = await queryBuilder.getMany();
+
+        return await this.checkExpirated(allData, true);
     }
 
     async getOneById(id: string) {
@@ -89,14 +137,25 @@ export class TicketService {
     }
 
     async store(payload: CreateTicketDTO, user: any) {
+        const { subject, category, priority, fungsiId, message } = payload;
+
         const createTicket = this.ticketRepository.create({
-            subject: payload.subject,
-            category: { id: payload.category },
+            subject: subject,
+            category: { id: category },
             userOrderer: { id: user.id },
-            priority: payload.priority,
-            fungsi: payload.fungsi,
+            priority: priority,
+            fungsi: { id: fungsiId },
             expiredAt: getExpiredDate(4)
         });
+        const messageBuilder = "*HELPDESK IT*\n\n" +
+            "Laporan Baru!\n" +
+            `dari\t\t\t: ${user.name} (${user.fungsi?.name ?? 'undifined'})\n` +
+            `Subjek\t\t: ${subject}\n` +
+            `Keterangan\t: ${message}\n\n` +
+            "Mohon Segera Diproses!"
+
+        // Send Notification
+        this.notification.sendMessageToAgent(fungsiId, messageBuilder);
         if (createTicket) {
             const newTicket = await this.ticketRepository.save(createTicket);
             const createMessage = this.messageService.store(payload.message, newTicket.id, user);
@@ -104,9 +163,11 @@ export class TicketService {
         }
     }
 
-    async updateStatus(id: string, { status }: Partial<EditStatusTicketDTO>) {
+    async updateStatus(id: string, { status, expiredAt }: Partial<EditTicketDTO>) {
+
         await this.ticketRepository.update({ id }, {
-            status
+            status,
+            expiredAt
         })
         const result = this.ticketRepository.findOne({
             where: { id },

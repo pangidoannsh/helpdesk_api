@@ -34,17 +34,18 @@ export class UserService {
 
     findByPhone(phone: string) {
         return this.userRepository.createQueryBuilder('user')
+            .leftJoinAndSelect('user.fungsi', 'fungsi')
             .addSelect('user.password')
             .where({ phone })
             .getOne();
     }
 
     create(userData: CreateUserDTO) {
-        const { phone, name, password: rawPassword, fungsi } = userData;
+        const { phone, name, password: rawPassword, fungsiId } = userData;
 
         try {
             const newUser = this.userRepository.create({
-                phone, name, password: encodePassword(rawPassword), fungsi
+                phone, name, password: encodePassword(rawPassword), fungsi: { id: fungsiId }
             })
             return this.userRepository.save(newUser);
         } catch (e) {

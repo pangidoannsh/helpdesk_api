@@ -9,10 +9,13 @@ import { TicketMessageModule } from './module/ticket-message/ticket-message.modu
 import { FeedbackModule } from './module/feedback/feedback.module';
 import { ResponsesModule } from './module/responses/responses.module';
 import { FungsiModule } from './module/fungsi/fungsi.module';
-import { ConfigModule } from './module/config/config.module';
-import { TimeScheduleModule } from './module/schedule/time-schedule.module';
+import { ConfigurationModule } from './module/configuration/configuration.module';
+import { TimeScheduleModule } from './module/time-schedule/time-schedule.module';
 import { FaqModule } from './module/faq/faq.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from './module/schedule/schedule.module';
+import { FungsiScheduleModule } from './module/fungsi-schedule/fungsi-schedule.module';
+import { NotificationModule } from './module/notification/notification.module';
 
 @Module({
   imports: [
@@ -29,7 +32,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       entities,
       synchronize: true
     }), UserModule, TicketMessageModule, TicketModule, AuthModule, CategoryModule, FeedbackModule, ResponsesModule, FungsiModule,
-    ConfigModule, TimeScheduleModule, FaqModule],
+    ConfigurationModule, TimeScheduleModule, FaqModule, ScheduleModule, FungsiScheduleModule, NotificationModule],
   controllers: [],
   providers: []
 })

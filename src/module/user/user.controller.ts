@@ -12,7 +12,7 @@ export class UserController {
     ) { }
 
     @Get()
-    @UseGuards(JwtGuard, new LevelGuard('supervisor'))
+    // @UseGuards(JwtGuard, new LevelGuard('supervisor'))
     async index() {
         return this.userService.all()
     }

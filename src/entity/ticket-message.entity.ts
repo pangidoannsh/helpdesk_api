@@ -13,7 +13,7 @@ export class TicketMessage {
     @ManyToOne(() => User, user => user.messageCreater, { eager: true })
     userCreated: User;
 
-    @ManyToOne(() => Ticket, ticket => ticket.ticketMessage, { eager: true })
+    @ManyToOne(() => Ticket, ticket => ticket.ticketMessage, { eager: true, onDelete: 'CASCADE' })
     ticket: Ticket
 
     @Column({

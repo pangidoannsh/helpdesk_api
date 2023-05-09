@@ -2,7 +2,7 @@ import { Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, B
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateTicketDTO, EditStatusTicketDTO, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, EditTicketDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketService } from './ticket.service';
 
 
@@ -11,11 +11,19 @@ export class TicketController {
     constructor(
         private readonly ticketService: TicketService
     ) { }
-
+    // @Get('phone')
+    // async getPhoneAgent(@Body('fungsiId') fungsiId: number) {
+    //     return await this.ticketService.getAgentSchedule(fungsiId);
+    // }
     @Get()
     @UseGuards(JwtGuard, new LevelGuard('supervisor', 'agent'))
     async getAll(@Query() query: TicketFilterDTO) {
-        return await this.ticketService.all(query);
+        return await this.ticketService.getByDashboard(query);
+    }
+    @Get('length')
+    @UseGuards(JwtGuard, new LevelGuard('supervisor', 'agent'))
+    getLengthOfAll(@Query() query: TicketFilterDTO) {
+        return this.ticketService.getLengthAll(query);
     }
 
     @Get('user')
@@ -41,7 +49,7 @@ export class TicketController {
     @Put(':id/status')
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
-    async editStatus(@Body() payload: EditStatusTicketDTO, @Param('id') id: string) {
+    async editStatus(@Body() payload: EditTicketDTO, @Param('id') id: string) {
         return await this.ticketService.updateStatus(id, payload);
     }
 }

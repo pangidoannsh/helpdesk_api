@@ -1,20 +1,20 @@
 import { Controller, Get, Put, Post, UseGuards, UsePipes, Req, Body, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from './config.service';
+import { ConfigurationService } from './configuration.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
 import { Request } from 'express';
-import { EditBaseScheduleDTO } from './config.dto';
+import { EditBaseScheduleDTO } from './configuration.dto';
 
 @Controller('config')
-export class ConfigController {
+export class ConfigurationController {
     constructor(
-        private readonly configService: ConfigService
+        private readonly configService: ConfigurationService
     ) { }
 
     @Get('base-schedule')
     @UseGuards(JwtGuard, new LevelGuard('supervisor'))
-    getBaseSchedule() {
-        return this.configService.getBaseSchedule();
+    async getBaseSchedule() {
+        return await this.configService.getBaseSchedule();
     }
 
     @Post()

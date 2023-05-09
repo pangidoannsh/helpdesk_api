@@ -11,18 +11,4 @@ import { MiddlewareConsumer } from '@nestjs/common/interfaces';
   providers: [UserService]
 })
 
-export class UserModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    // consumer.apply(SupervisorMiddleware)
-    //   .forRoutes(
-    //     {
-    //       path: "/user",
-    //       method: RequestMethod.GET
-    //     },
-    //     {
-    //       path: "/user/:id/edit-access",
-    //       method: RequestMethod.PUT
-    //     }
-    //   )
-  }
-}
+export class UserModule { }

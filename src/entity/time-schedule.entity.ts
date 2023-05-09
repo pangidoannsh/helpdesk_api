@@ -6,8 +6,8 @@ export class TimeSchedule {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => User, user => user.schedule, { eager: true })
-    user: User;
+    @ManyToOne(() => User, user => user.timeSchedule, { eager: true })
+    agentUser: User;
 
     @Column({
         nullable: true

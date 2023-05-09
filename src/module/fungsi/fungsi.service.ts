@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Fungsi } from 'src/entity';
 import { Repository } from 'typeorm';
@@ -30,6 +30,11 @@ export class FungsiService {
     }
 
     async deleteData(id: any) {
-        return await this.fungsiRepository.delete({ id })
+        // return await this.fungsiRepository.delete({ id })
+        // try {
+        // } catch (e) {
+        //     throw new HttpException("Tidak dapat menghapus data ini, karena data ini berelasi ke jadwal fungsi lainnya",
+        //         406, { cause: new Error(e) })
+        // }
     }
 }

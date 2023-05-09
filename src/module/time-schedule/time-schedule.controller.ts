@@ -10,13 +10,16 @@ export class TimeScheduleController {
     constructor(
         private readonly scheduleService: TimeScheduleService
     ) { }
-
+    // @Get('today')
+    // async today() {
+    //     return this.scheduleService.getTodaySchedule();
+    // }
     @Get()
     @UseGuards(JwtGuard)
-    getAllSchedule(@Query() query: QueryGetSchedule) {
+    async getAllSchedule(@Query() query: QueryGetSchedule) {
         // console.log(query);
 
-        return this.scheduleService.getAll();
+        return await this.scheduleService.getFromThisMonth(query);
     }
 
     @Post()

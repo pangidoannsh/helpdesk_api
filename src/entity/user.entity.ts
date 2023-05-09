@@ -5,6 +5,7 @@ import { TicketMessage } from "./ticket-message.entity";
 import { Ticket } from "./ticket.entity";
 import { TimeSchedule } from "./time-schedule.entity";
 import { Faq } from "./faq.entity";
+import { FungsiSchedule } from "./fungsi-schedule.entity";
 
 @Entity()
 export class User {
@@ -69,11 +70,12 @@ export class User {
     @OneToMany(() => Faq, faq => faq.userCreate)
     faqCreator: Faq[]
 
-    @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.user)
-    schedule: TimeSchedule[];
+    @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.agentUser)
+    timeSchedule: TimeSchedule[];
 
-    @Column({
-        length: 50
-    })
-    fungsi: string;
+    @OneToMany(() => FungsiSchedule, fungsiSchedule => fungsiSchedule.agentUser)
+    fungsiSchedule: FungsiSchedule[];
+
+    @ManyToOne(() => Fungsi, fungsi => fungsi.user, { eager: true })
+    fungsi: Fungsi
 }

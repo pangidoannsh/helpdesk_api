@@ -7,6 +7,7 @@ import { TimeScheduleController } from './time-schedule.controller';
 @Module({
   imports: [TypeOrmModule.forFeature([TimeSchedule])],
   providers: [TimeScheduleService],
-  controllers: [TimeScheduleController]
+  controllers: [TimeScheduleController],
+  exports: [TimeScheduleService]
 })
 export class TimeScheduleModule { }

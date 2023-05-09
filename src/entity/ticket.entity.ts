@@ -3,6 +3,7 @@ import { Category } from "./category.entity";
 import { Feedback } from "./feedback.entity";
 import { TicketMessage } from "./ticket-message.entity";
 import { User } from "./user.entity";
+import { Fungsi } from "./fungsi.entity";
 
 @Entity()
 export class Ticket {
@@ -24,10 +25,8 @@ export class Ticket {
     @ManyToOne(() => Category, category => category.ticket, { eager: true })
     category: Category
 
-    @Column({
-        length: 50
-    })
-    fungsi: string;
+    @ManyToOne(() => Fungsi, fungsi => fungsi.ticket)
+    fungsi: Fungsi;
 
     @OneToOne(() => Feedback, feedback => feedback.ticket)
     feedback: Feedback
@@ -44,7 +43,7 @@ export class Ticket {
         name: "status",
         nullable: false,
         enumName: "ticket_status",
-        enum: ["open", "process", "expired", "done"],
+        enum: ["open", "process", "done", "expired"],
         default: "open"
     })
     status: string
@@ -72,6 +71,6 @@ export class Ticket {
     })
     createdAt: Date
 
-    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.ticket)
+    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.ticket, { onDelete: "CASCADE" })
     ticketMessage: TicketMessage[]
 }

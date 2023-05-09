@@ -13,7 +13,7 @@ export class CreateTicketDTO {
     priority: any;
 
     @IsNotEmpty()
-    fungsi: string;
+    fungsiId: any;
 }
 
 export class TicketFilterDTO {
@@ -22,9 +22,14 @@ export class TicketFilterDTO {
     priority: string;
     fungsi: string;
     status: string;
+    offset: number;
+    limit: number
 }
 
-export class EditStatusTicketDTO {
+export class EditTicketDTO {
+    @IsNotEmpty()
+    expiredAt: Date;
+
     @IsNotEmpty()
     status: string;
 }
