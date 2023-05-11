@@ -13,7 +13,7 @@ export class AgentScheduleService {
     ) { }
 
     async getPhoneDutyAgent(fungsiId: number) {
-        const baseSchedule = await this.configService.getBaseSchedule();
+        const baseSchedule = await this.configService.config.BaseScheduleAgent;
         let getSchedule: Array<FungsiSchedule | TimeSchedule>;
         if (baseSchedule === 'fungsi') {
             getSchedule = await this.fungsiScheduleService.getScheduleByFungsi(fungsiId)

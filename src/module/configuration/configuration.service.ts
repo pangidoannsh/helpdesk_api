@@ -1,41 +1,48 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Configuration } from 'src/entity';
 import { Repository } from 'typeorm';
-import { EditBaseScheduleDTO } from './configuration.dto';
+import { UpdateConfiguration } from './configuration.dto';
 
 @Injectable()
-export class ConfigurationService {
+export class ConfigurationService implements OnModuleInit {
+    public config: Configuration;
 
     constructor(
         @InjectRepository(Configuration)
         private readonly configRepository: Repository<Configuration>
     ) { }
 
-    async getBaseSchedule() {
-        const getConfig = await this.configRepository.createQueryBuilder('config').getOne();
+    async onModuleInit() {
+        const getConfig = await this.getConfig();
         if (getConfig) {
-            return getConfig.BaseScheduleAgent;
+            this.config = getConfig;
+        } else {
+            this.config = await this.createConfig();
         }
-        const createConfig = await this.createConfig();
-        return createConfig.BaseScheduleAgent;
+    }
+
+    async getConfig() {
+        return await this.configRepository.createQueryBuilder('config').getOne();
     }
 
     async createConfig() {
-        const create = this.configRepository.create({
-            BaseScheduleAgent: 'time'
-        });
+        const create = this.configRepository.create();
         return await this.configRepository.save(create);
     }
 
-    async updateBaseSchedule(payload: Partial<EditBaseScheduleDTO>) {
-        const update = await this.configRepository.createQueryBuilder('config').update(({
-            BaseScheduleAgent: payload.baseSchedule
-        })).execute()
-
+    async updateConfig(payload: Partial<UpdateConfiguration>) {
+        const update = await this.configRepository.createQueryBuilder('config').update({
+            BaseScheduleAgent: payload.baseSchedule,
+            isSendEmail: payload.isSendEmail,
+            isSendWhatsapp: payload.isSendWhatsapp,
+            systemMode: payload.systemMode,
+            ticketDeadline: payload.ticketDeadline
+        }).execute();
 
         if (update.affected === 1) {
-            return await this.getBaseSchedule();
+            this.config = await this.getConfig();
+            return this.config;
         }
         throw new BadGatewayException("gagal update base schedule")
     }

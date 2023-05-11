@@ -5,10 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TicketMessageModule } from '../ticket-message/ticket-message.module';
 import { Ticket } from 'src/entity';
 import { NotificationModule } from '../notification/notification.module';
+import { ConfigurationModule } from '../configuration/configuration.module';
+import { ConfigurationService } from '../configuration/configuration.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Ticket]),
-    TicketMessageModule, NotificationModule],
+    TicketMessageModule, NotificationModule, ConfigurationModule],
   controllers: [TicketController],
   providers: [TicketService],
 })

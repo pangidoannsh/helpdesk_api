@@ -12,7 +12,7 @@ export class ScheduleService {
     ) { }
 
     async getDataSchedule() {
-        const baseSchedule = await this.configService.getBaseSchedule();
+        const baseSchedule = this.configService.config.BaseScheduleAgent;
         const fungsiSchedule = await this.fungsiSchedule.getSchedule();
         const timeSchedule = await this.timeSchedule.getFromThisMonth();
 

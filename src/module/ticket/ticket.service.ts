@@ -4,10 +4,9 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
 import { CreateTicketDTO, EditTicketDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketMessageService } from '../ticket-message/ticket-message.service';
-import { displayDate, displayDateFromArrayObject, getExpiredDate } from 'src/utils/date';
-import { WhatsappService } from '../notification/whatsapp.service';
-import { AgentScheduleService } from '../notification/agent-schedule.service';
+import { displayDate, getExpiredDate } from 'src/utils/date';
 import { NotificationService } from '../notification/notification.service';
+import { ConfigurationService } from '../configuration/configuration.service';
 
 @Injectable()
 export class TicketService {
@@ -15,7 +14,8 @@ export class TicketService {
         @InjectRepository(Ticket)
         private readonly ticketRepository: Repository<Ticket>,
         private readonly messageService: TicketMessageService,
-        private readonly notification: NotificationService
+        private readonly notification: NotificationService,
+        private readonly config: ConfigurationService
     ) { }
 
     async checkExpirated(allData: Ticket[], orderByStatus?: boolean) {
@@ -106,7 +106,6 @@ export class TicketService {
         if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
         if (status) queryBuilder.andWhere('ticket.status = :status', { status });
         if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
-        if (fungsi) queryBuilder.andWhere('ticket.fungsiId = :fungsi', { fungsi });
 
         queryBuilder.orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC');
 
@@ -138,6 +137,7 @@ export class TicketService {
 
     async store(payload: CreateTicketDTO, user: any) {
         const { subject, category, priority, fungsiId, message } = payload;
+        const getTicketExpired = this.config.config.ticketDeadline;
 
         const createTicket = this.ticketRepository.create({
             subject: subject,
@@ -145,7 +145,7 @@ export class TicketService {
             userOrderer: { id: user.id },
             priority: priority,
             fungsi: { id: fungsiId },
-            expiredAt: getExpiredDate(4)
+            expiredAt: getExpiredDate(getTicketExpired)
         });
         const messageBuilder = "*HELPDESK IT*\n\n" +
             "Laporan Baru!\n" +
@@ -173,6 +173,6 @@ export class TicketService {
             where: { id },
             relations: ["userOrderer"]
         });
-        return result;
+        return await result;
     }
 }

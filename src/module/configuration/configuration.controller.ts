@@ -3,7 +3,7 @@ import { ConfigurationService } from './configuration.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
 import { Request } from 'express';
-import { EditBaseScheduleDTO } from './configuration.dto';
+import { EditBaseScheduleDTO, UpdateConfiguration } from './configuration.dto';
 
 @Controller('config')
 export class ConfigurationController {
@@ -11,10 +11,10 @@ export class ConfigurationController {
         private readonly configService: ConfigurationService
     ) { }
 
-    @Get('base-schedule')
+    @Get()
     @UseGuards(JwtGuard, new LevelGuard('supervisor'))
-    async getBaseSchedule() {
-        return await this.configService.getBaseSchedule();
+    async getConfig() {
+        return await this.configService.getConfig();
     }
 
     @Post()
@@ -23,11 +23,11 @@ export class ConfigurationController {
         return await this.configService.createConfig();
     }
 
-    @Put('base-schedule')
-    @UseGuards(JwtGuard, new LevelGuard("supervisor"))
+    @Put()
+    @UseGuards(JwtGuard, new LevelGuard('supervisor'))
     @UsePipes(ValidationPipe)
-    async editBaseSchedule(@Req() req: Request, @Body() payload: EditBaseScheduleDTO) {
-        return await this.configService.updateBaseSchedule(payload);
+    async editConfiguration(@Body() payload: UpdateConfiguration) {
+        return await this.configService.updateConfig(payload);
     }
 
 }

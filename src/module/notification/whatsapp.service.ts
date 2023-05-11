@@ -3,7 +3,8 @@ import makeWASocket, {
     useMultiFileAuthState,
     DisconnectReason,
     isJidBroadcast,
-    AuthenticationState
+    AuthenticationState,
+    UserFacingSocketConfig
 } from 'baileys-md'
 import * as fs from 'fs';
 import pino from 'pino';
@@ -64,10 +65,6 @@ export class WhatsappService implements OnModuleInit {
         })
 
         this.client.ev.on('creds.update', saveCreds);
-
-        // this.client.ev.on('messages.upsert', async m => {
-        //     console.log(JSON.stringify(m, undefined, 2))
-        // })
     }
 
     async send(phone: string, message: string) {
@@ -83,33 +80,6 @@ export class WhatsappService implements OnModuleInit {
                 response: e,
             }
         }
-        // try {
-        //     const exists = await this.client.onWhatsApp(`${waPhone}@s.whatsapp.net`);
-        //     console.log(exists);
-        //     if (exists?.jid || (exists && exists[0]?.jid)) {
-        //         console.log('Success sending to ' + phone);
-
-        //         return await this.client.sendMessage(exists.jid || exists[0].jid, { text: message })
-        //     } else {
-        //         console.log('Failed sending to ' + phone);
-
-
-        //         return {
-        //             status: false,
-        //             response: {
-        //                 message: "Number Receiver not Exist!"
-        //             }
-        //         }
-        //     }
-        // } catch (e) {
-        //     console.log('(Catch) Failed sending to ' + phone);
-        //     console.log(e);
-
-        //     return {
-        //         status: false,
-        //         response: e,
-        //     }
-        // }
     }
 
 }

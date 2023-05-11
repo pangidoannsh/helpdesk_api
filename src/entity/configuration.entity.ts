@@ -13,4 +13,30 @@ export class Configuration {
         default: "time"
     })
     BaseScheduleAgent: string;
+
+    @Column({
+        type: "enum",
+        nullable: false,
+        enumName: 'base_schedule',
+        enum: ["ready", "maintenance"],
+        default: "maintenance"
+    })
+    systemMode: string;
+
+    @Column({
+        default: true,
+        type: 'bool'
+    })
+    isSendWhatsapp: boolean
+
+    @Column({
+        default: true,
+        type: 'bool'
+    })
+    isSendEmail: boolean;
+
+    @Column({
+        default: 1
+    })
+    ticketDeadline: number
 }
