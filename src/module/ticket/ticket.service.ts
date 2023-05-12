@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { Ticket } from 'src/entity';
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
@@ -48,7 +48,9 @@ export class TicketService {
         const currentDate = new Date();
         const result = await Promise.all(
             allData.map(data => {
-                if (data.status !== "expired" && data.expiredAt < currentDate) {
+                // logic : jika status tiket sama dengan "open" dan sekarang sudah melebihi batas waktu expired 
+                //         maka update status ke "expired"
+                if (data.status === "open" && data.expiredAt < currentDate) {
                     return this.updateStatus(data.id, { status: "expired" });
                 }
                 return data;
@@ -208,11 +210,24 @@ export class TicketService {
         })
         const result = this.ticketRepository.findOne({
             where: { id },
-            relations: ["userOrderer"]
+            relations: ["userOrderer", "fungsi"]
         });
         return await result;
     }
 
+    /**
+     * untuk menghapus data ticket
+     * @param id 
+     * @returns 
+     */
+    async deleteData(id: any) {
+        try {
+            return await this.ticketRepository.delete({ id })
+        } catch (e) {
+            throw new HttpException("Tidak dapat menghapus ticket ini!",
+                406, { cause: new Error(e) })
+        }
+    }
     /**
      * Update status ticket ke PROCESS
      * @param id 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, Body, Query, Param, Put } from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, Body, Query, Param, Put, Delete } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
@@ -44,6 +44,12 @@ export class TicketController {
     async create(@Req() req: Request, @Body() payload: CreateTicketDTO, @Res() res: Response) {
         const newTicket = await this.ticketService.store(payload, req.user);
         res.send(newTicket).status(201)
+    }
+    @Delete(':id')
+    @UsePipes(ValidationPipe)
+    @UseGuards(JwtGuard)
+    async deleteTicket(@Param('id') id: any) {
+        return await this.ticketService.deleteData(id)
     }
 
     @Put(':id/status')
