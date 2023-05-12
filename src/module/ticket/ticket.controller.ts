@@ -52,4 +52,11 @@ export class TicketController {
     async editStatus(@Body() payload: EditTicketDTO, @Param('id') id: string) {
         return await this.ticketService.updateStatus(id, payload);
     }
+
+    @Put(':id/process')
+    @UsePipes(ValidationPipe)
+    @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
+    async processTicket(@Param('id') id: string) {
+        return await this.ticketService.processTicket(id);
+    }
 }

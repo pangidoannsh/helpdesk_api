@@ -10,6 +10,7 @@ import { ConfigurationService } from '../configuration/configuration.service';
 
 @Injectable()
 export class TicketService {
+
     constructor(
         @InjectRepository(Ticket)
         private readonly ticketRepository: Repository<Ticket>,
@@ -18,6 +19,31 @@ export class TicketService {
         private readonly config: ConfigurationService
     ) { }
 
+    /**
+     * berfungsi untuk filtrasi data ticket
+     * @param queryBuilder 
+     * @param filter : berupa object => {subject,category,fungsi,priority,status}
+     * @returns 
+     */
+    filterQuery(queryBuilder: SelectQueryBuilder<Ticket>, filter: TicketFilterDTO)
+        : SelectQueryBuilder<Ticket> {
+        const { subject, category, fungsi, priority, status } = filter;
+
+        if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
+        if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
+        if (status) queryBuilder.andWhere('ticket.status = :status', { status });
+        if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
+        if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
+
+        return queryBuilder;
+    }
+
+    /**
+     * berfungsi untuk mengecek expired ticket dan mengubah status ticket yang sudah lewat batas expired dari open ke expired
+     * @param allData 
+     * @param orderByStatus : menentukan apakah data yang sudah di-update statusnya akan di diurutkan berdasarkan status?
+     * @returns 
+     */
     async checkExpirated(allData: Ticket[], orderByStatus?: boolean) {
         const currentDate = new Date();
         const result = await Promise.all(
@@ -34,20 +60,25 @@ export class TicketService {
         return result;
     };
 
+    /**
+     * berfungsi untuk mengambil panjang data dari semua data ticket
+     * @param filter 
+     * @returns 
+     */
     async getLengthAll(filter: TicketFilterDTO) {
-        const { subject, category, fungsi, priority, status } = filter;
+        // const { subject, category, fungsi, priority, status } = filter;
 
         const queryBuilder = this.ticketRepository.createQueryBuilder('ticket')
             .leftJoinAndSelect('ticket.userOrderer', 'user')
             .leftJoinAndSelect('ticket.category', 'category')
 
-        if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
-        if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
-        if (status) queryBuilder.andWhere('ticket.status = :status', { status });
-        if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
-        if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
+        // if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
+        // if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
+        // if (status) queryBuilder.andWhere('ticket.status = :status', { status });
+        // if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
+        // if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
 
-        const lengthData = await queryBuilder.orderBy('ticket.createdAt', 'DESC').getCount();
+        const lengthData = await this.filterQuery(queryBuilder, filter).orderBy('ticket.createdAt', 'DESC').getCount();
         return lengthData;
     }
 
@@ -58,17 +89,17 @@ export class TicketService {
             .leftJoinAndSelect('ticket.category', 'category')
             .leftJoinAndSelect('ticket.fungsi', 'fungsi')
 
-        if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
-        if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
-        if (status) queryBuilder.andWhere('ticket.status = :status', { status });
-        if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
-        if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
-
-        const allData = await queryBuilder.orderBy('ticket.createdAt', 'DESC').getMany();
+        const allData = await this.filterQuery(queryBuilder, filter).orderBy('ticket.createdAt', 'DESC').getMany();
 
         return await this.checkExpirated(allData);
     }
 
+    /**
+     * fungsi untuk mengambil seluruh data ticket dengan request berasal dari dashboard 
+     * NOTE : data diambil sebagian berdasarkan pagination
+     * @param filter 
+     * @returns 
+     */
     async getByDashboard(filter?: TicketFilterDTO) {
         const { subject, category, fungsi, priority, status, limit, offset } = filter;
         const queryBuilder = this.ticketRepository.createQueryBuilder('ticket')
@@ -76,13 +107,7 @@ export class TicketService {
             .leftJoinAndSelect('ticket.category', 'category')
             .leftJoinAndSelect('ticket.fungsi', 'fungsi')
 
-        if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
-        if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
-        if (status) queryBuilder.andWhere('ticket.status = :status', { status });
-        if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
-        if (fungsi) queryBuilder.andWhere('ticket.fungsi = :fungsi', { fungsi });
-
-        queryBuilder.orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC')
+        this.filterQuery(queryBuilder, filter).orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC')
 
         if (offset) queryBuilder.offset(offset);
         if (limit) queryBuilder.limit(limit);
@@ -92,6 +117,12 @@ export class TicketService {
         return await this.checkExpirated(allData);
     }
 
+    /**
+     * mengambil data ticket yang dibuat oleh user yang me-rquest data
+     * @param user 
+     * @param filter 
+     * @returns 
+     */
     async getByUser(user: any, filter: TicketFilterDTO) {
         const { subject, category, fungsi, priority, status, offset, limit } = filter;
 
@@ -101,13 +132,7 @@ export class TicketService {
             .leftJoinAndSelect('ticket.category', 'category')
             .leftJoinAndSelect('ticket.fungsi', 'fungsi')
 
-        // filter query
-        if (subject) queryBuilder.andWhere('ticket.subject Like :subject', { subject: `%${subject}%` })
-        if (priority) queryBuilder.andWhere('ticket.priority = :priority', { priority });
-        if (status) queryBuilder.andWhere('ticket.status = :status', { status });
-        if (category) queryBuilder.andWhere('ticket.categoryId = :category', { category });
-
-        queryBuilder.orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC');
+        this.filterQuery(queryBuilder, filter).orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC');
 
         // pagination query
         if (offset) queryBuilder.offset(offset);
@@ -119,11 +144,16 @@ export class TicketService {
         return await this.checkExpirated(allData, true);
     }
 
+    /**
+     * mengambil 1 data ticket
+     * @param id 
+     * @returns 
+     */
     async getOneById(id: string) {
 
         const getOne = await this.ticketRepository.findOne({
             where: { id },
-            relations: ['userOrderer']
+            relations: ['userOrderer', 'fungsi']
         });
         if (getOne) {
             const { date, time } = displayDate(getOne.createdAt);
@@ -135,6 +165,12 @@ export class TicketService {
 
     }
 
+    /**
+     * membuat ticket baru
+     * @param payload 
+     * @param user 
+     * @returns 
+     */
     async store(payload: CreateTicketDTO, user: any) {
         const { subject, category, priority, fungsiId, message } = payload;
         const getTicketExpired = this.config.config.ticketDeadline;
@@ -163,6 +199,7 @@ export class TicketService {
         }
     }
 
+
     async updateStatus(id: string, { status, expiredAt }: Partial<EditTicketDTO>) {
 
         await this.ticketRepository.update({ id }, {
@@ -174,5 +211,20 @@ export class TicketService {
             relations: ["userOrderer"]
         });
         return await result;
+    }
+
+    /**
+     * Update status ticket ke PROCESS
+     * @param id 
+     */
+    async processTicket(id: string) {
+        await this.ticketRepository.update({ id }, {
+            status: 'process'
+        })
+
+        return await this.ticketRepository.findOne({
+            where: { id },
+            relations: ["userOrderer", "fungsi"]
+        });;
     }
 }
