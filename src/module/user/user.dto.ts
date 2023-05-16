@@ -29,5 +29,4 @@ export class UserDTO {
 
 export class UpdateUserBySupervisorDTO {
     level: string;
-    isActived: boolean;
 }

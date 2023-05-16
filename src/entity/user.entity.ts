@@ -48,13 +48,6 @@ export class User {
     })
     level: string
 
-    @Column({
-        type: "bool",
-        name: "isActived",
-        default: false
-    })
-    isActived: boolean
-
     @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
     refreshTokens: RefreshToken[]
 

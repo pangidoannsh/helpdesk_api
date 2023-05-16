@@ -24,8 +24,7 @@ export class AuthService {
 
                 // setup data
                 const user_data = {
-                    id: userDB.id, name: userDB.name, level: userDB.level,
-                    isActived: userDB.isActived, fungsi: userDB.fungsi
+                    id: userDB.id, name: userDB.name, level: userDB.level, fungsi: userDB.fungsi
                 };
                 // generate jwt access token
                 const access_token = await this.jwtService.signAsync(user_data);

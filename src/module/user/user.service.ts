@@ -67,8 +67,7 @@ export class UserService {
 
     async updateBySupervisor(id: number, data: Partial<UpdateUserBySupervisorDTO>) {
         await this.userRepository.update({ id }, {
-            level: data.level,
-            isActived: data.isActived
+            level: data.level
         })
         const updateUser = await this.userRepository.findOneBy({ id });
         return updateUser;
