@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { Ticket } from 'src/entity';
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
-import { CreateTicketDTO, EditTicketDTO, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketMessageService } from '../ticket-message/ticket-message.service';
 import { displayDate, getExpiredDate } from 'src/utils/date';
 import { NotificationService } from '../notification/notification.service';
@@ -51,16 +51,48 @@ export class TicketService {
                 // logic : jika status tiket sama dengan "open" dan sekarang sudah melebihi batas waktu expired 
                 //         maka update status ke "expired"
                 if (data.status === "open" && data.expiredAt < currentDate) {
-                    return this.updateStatus(data.id, { status: "expired" });
+                    return this.updateStatus(data.id, "expired");
                 }
                 return data;
             })
         );
-        const enumStatus = ["open", "process", "done", "expired"];
+
+        const enumStatus = ["open", "process", "feedback", "done", "expired"];
 
         if (orderByStatus) result.sort((a, b) => enumStatus.indexOf(a.status) - enumStatus.indexOf(b.status));
         return result;
     };
+
+    async getTicketCountEachStatus() {
+        const ticketCount = await this.ticketRepository.createQueryBuilder('ticket')
+            .select('ticket.status as status, COUNT(*) as count')
+            .groupBy('ticket.status')
+            .getRawMany();
+
+        return ticketCount;
+    }
+    async getCountMonthlyTicket(year?: number) {
+
+        const now = new Date();
+        const currentYear = now.getFullYear(); const month = now.getMonth() + 1;
+
+        // Membuat daftar bulan yang dimulai dari Januari hingga bulan saat ini
+        let monthList = Array.from({ length: month }, (_, i) => i + 1);
+
+        if (year && year != currentYear) {
+            monthList = Array.from({ length: 12 }, (_, i) => i + 1);
+        }
+        const ticket_count = await this.ticketRepository.createQueryBuilder('ticket')
+            .select('MONTH(ticket.createdAt) as month, COUNT(*) as count')
+            .where('YEAR(ticket.createdAt) = :year', { year: year ?? currentYear })
+            .groupBy('MONTH(ticket.createdAt)')
+            .getRawMany();
+
+        return monthList.map((month) => {
+            const found = ticket_count.find((item) => item.month === month);
+            return found ? found.count : 0;
+        });
+    }
 
     /**
      * berfungsi untuk mengambil panjang data dari semua data ticket
@@ -109,7 +141,10 @@ export class TicketService {
             .leftJoinAndSelect('ticket.category', 'category')
             .leftJoinAndSelect('ticket.fungsi', 'fungsi')
 
-        this.filterQuery(queryBuilder, filter).orderBy('ticket.status', 'ASC').addOrderBy('ticket.createdAt', 'DESC')
+        this.filterQuery(queryBuilder, filter)
+            .orderBy('ticket.status', 'ASC')
+            .addOrderBy('ticket.priority', 'DESC')
+            .addOrderBy('ticket.createdAt', 'DESC')
 
         if (offset) queryBuilder.offset(offset);
         if (limit) queryBuilder.limit(limit);
@@ -147,7 +182,7 @@ export class TicketService {
     }
 
     /**
-     * mengambil 1 data ticket
+     * mengambil 1 data ticket berdasarkan Id
      * @param id 
      * @returns 
      */
@@ -201,18 +236,32 @@ export class TicketService {
         }
     }
 
-
-    async updateStatus(id: string, { status, expiredAt }: Partial<EditTicketDTO>) {
+    /**
+     * memperbarui status dari tiket
+     * @param id 
+     * @param status 
+     * @returns 
+     */
+    async updateStatus(id: string, status: string) {
 
         await this.ticketRepository.update({ id }, {
-            status,
-            expiredAt
+            status
         })
-        const result = this.ticketRepository.findOne({
-            where: { id },
-            relations: ["userOrderer", "fungsi"]
-        });
-        return await result;
+
+        const result = await this.ticketRepository.createQueryBuilder('ticket')
+            .where('ticket.id = :id', { id })
+            .leftJoinAndSelect('ticket.userOrderer', 'user')
+            .leftJoinAndSelect('ticket.fungsi', 'fungsi')
+            .addSelect(['user.phone'])
+            .getOne()
+
+        if (status !== 'expired') {
+            const messageBuilder = "*HELPDESK IT*\n\n" +
+                "Laporan anda sedang DIPROSES!"
+            this.notification.sendMessageToTicketOrderer(result.userOrderer.phone, messageBuilder)
+        }
+
+        return result;
     }
 
     /**
@@ -227,19 +276,5 @@ export class TicketService {
             throw new HttpException("Tidak dapat menghapus ticket ini!",
                 406, { cause: new Error(e) })
         }
-    }
-    /**
-     * Update status ticket ke PROCESS
-     * @param id 
-     */
-    async processTicket(id: string) {
-        await this.ticketRepository.update({ id }, {
-            status: 'process'
-        })
-
-        return await this.ticketRepository.findOne({
-            where: { id },
-            relations: ["userOrderer", "fungsi"]
-        });;
     }
 }

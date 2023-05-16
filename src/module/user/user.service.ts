@@ -28,6 +28,11 @@ export class UserService {
     async allAgent() {
         return await this.userRepository.findBy({ level: "agent" });
     }
+
+    async getAgentCount() {
+        return await this.userRepository.createQueryBuilder('user')
+            .where('user.level = "agent"').getCount();
+    }
     findById(id: number): Promise<UserEntity> {
         return this.userRepository.findOneBy({ id })
     }

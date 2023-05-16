@@ -2,7 +2,7 @@ import { Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, B
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateTicketDTO, EditTicketDTO, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, EditTicketDTO, EditTicketStatusDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketService } from './ticket.service';
 
 
@@ -55,14 +55,19 @@ export class TicketController {
     @Put(':id/status')
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
-    async editStatus(@Body() payload: EditTicketDTO, @Param('id') id: string) {
-        return await this.ticketService.updateStatus(id, payload);
+    async editStatus(@Body() payload: EditTicketStatusDTO, @Param('id') id: string) {
+        return await this.ticketService.updateStatus(id, payload.status);
     }
 
-    @Put(':id/process')
-    @UsePipes(ValidationPipe)
+    @Get('monthly')
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
-    async processTicket(@Param('id') id: string) {
-        return await this.ticketService.processTicket(id);
+    async getMonthlyTicket(@Query('year') year: any) {
+        return await this.ticketService.getCountMonthlyTicket(year);
+    }
+
+    @Get('count/status')
+    @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
+    async getTicketCountEachStatus() {
+        return await this.ticketService.getTicketCountEachStatus();
     }
 }

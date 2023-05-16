@@ -21,4 +21,10 @@ export class NotificationService {
             });
         }
     }
+    async sendMessageToTicketOrderer(phone: string, message: string) {
+        const isSendWhatsapp = this.config.config.isSendWhatsapp ?? (await this.config.getConfig()).BaseScheduleAgent
+        if (isSendWhatsapp) {
+            this.whatsApp.send(phone, message)
+        }
+    }
 }

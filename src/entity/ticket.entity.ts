@@ -43,7 +43,7 @@ export class Ticket {
         name: "status",
         nullable: false,
         enumName: "ticket_status",
-        enum: ["open", "process", "done", "expired"],
+        enum: ["open", "process", "feedback", "done", "expired"],
         default: "open"
     })
     status: string
