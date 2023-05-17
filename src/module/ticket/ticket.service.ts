@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
 import { Ticket } from 'src/entity';
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
@@ -137,6 +137,9 @@ export class TicketService {
 
     async store(payload: CreateTicketDTO, user: any) {
         const { subject, category, priority, fungsiId, message } = payload;
+        if(fungsiId === -1){
+            throw new NotAcceptableException('User Belum Memiliki Fungsi, Silahkan atur fungsi dari user terlebih dahulu')
+        }
         const getTicketExpired = this.config.config.ticketDeadline;
 
         const createTicket = this.ticketRepository.create({

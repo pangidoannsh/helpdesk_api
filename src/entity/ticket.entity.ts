@@ -25,7 +25,7 @@ export class Ticket {
     @ManyToOne(() => Category, category => category.ticket, { eager: true })
     category: Category
 
-    @ManyToOne(() => Fungsi, fungsi => fungsi.ticket)
+    @ManyToOne(() => Fungsi, fungsi => fungsi.ticket,{onDelete:'SET NULL'})
     fungsi: Fungsi;
 
     @OneToOne(() => Feedback, feedback => feedback.ticket)

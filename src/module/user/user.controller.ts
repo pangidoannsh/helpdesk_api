@@ -10,7 +10,11 @@ export class UserController {
     constructor(
         private readonly userService: UserService
     ) { }
-
+    
+    // @Get('reg')
+    // async reg(){
+    //     return this.userService.initSupervisor();
+    // }
     @Get()
     // @UseGuards(JwtGuard, new LevelGuard('supervisor'))
     async index() {
