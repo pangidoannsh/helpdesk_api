@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './module/user/user.module';
 import { TicketModule } from './module/ticket/ticket.module';
@@ -16,6 +16,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from './module/schedule/schedule.module';
 import { FungsiScheduleModule } from './module/fungsi-schedule/fungsi-schedule.module';
 import { NotificationModule } from './module/notification/notification.module';
+import { SystemMiddleware } from './middleware/system.middleware';
+import { TicketController } from './module/ticket/ticket.controller';
+import { TicketMessageController } from './module/ticket-message/ticket-message.controller';
 
 @Module({
   imports: [
@@ -38,5 +41,7 @@ import { NotificationModule } from './module/notification/notification.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SystemMiddleware)
+      .forRoutes(TicketController, TicketMessageController)
   }
 }

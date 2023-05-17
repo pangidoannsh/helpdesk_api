@@ -12,32 +12,26 @@ export class UserService implements OnModuleInit {
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>
     ) { }
-    
+
     async onModuleInit() {
-        const totalUser = await this.totalUser()
-        if(totalUser === 0){
-            this.initSupervisor()
-        }
+        this.initSupervisor()
     }
-    async initSupervisor(){
-        const rawPassword = '123456';
-        const phone = '0811';
-        const name = 'Edo Dev';
-        const isActived = true
-        
-        try {
+
+    async initSupervisor() {
+        const totalUser = await this.getTotalUser();
+
+        if (totalUser === 0) {
+            const phone = '0811';
+            const name = 'Edo Dev'
+            const level = 'supervisor';
+            const rawPassword = '123456';
             const newUser = this.userRepository.create({
-                phone, name, password: encodePassword(rawPassword),isActived
+                phone, name, password: encodePassword(rawPassword), level
             })
             return this.userRepository.save(newUser);
-        } catch (e) {
-            throw new BadRequestException();
         }
     }
-    async totalUser(){
-        return await this.userRepository.createQueryBuilder('user')
-        .getCount();
-    }
+
     async all() {
         let result: UserEntity[] = [];
         await this.userRepository.find().then(res => {
@@ -46,12 +40,19 @@ export class UserService implements OnModuleInit {
 
         return result.map(data => ({ ...data }));
     }
-
+    async getTotalUser() {
+        return await this.userRepository.count();
+    }
     async allEmployee() {
         return await this.userRepository.findBy({ level: "pegawai" });
     }
     async allAgent() {
         return await this.userRepository.findBy({ level: "agent" });
+    }
+
+    async getAgentCount() {
+        return await this.userRepository.createQueryBuilder('user')
+            .where('user.level = "agent"').getCount();
     }
     findById(id: number): Promise<UserEntity> {
         return this.userRepository.findOneBy({ id })
@@ -87,8 +88,7 @@ export class UserService implements OnModuleInit {
 
     async updateBySupervisor(id: number, data: Partial<UpdateUserBySupervisorDTO>) {
         await this.userRepository.update({ id }, {
-            level: data.level,
-            isActived: data.isActived
+            level: data.level
         })
         const updateUser = await this.userRepository.findOneBy({ id });
         return updateUser;

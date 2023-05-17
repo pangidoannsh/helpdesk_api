@@ -33,3 +33,8 @@ export class EditTicketDTO {
     @IsNotEmpty()
     status: string;
 }
+
+export class EditTicketStatusDTO {
+    @IsNotEmpty()
+    status: string;
+}

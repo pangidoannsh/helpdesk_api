@@ -1,6 +1,6 @@
 import { AuthGuard } from "@nestjs/passport"
-import { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken"
-import { ForbiddenException, NotAcceptableException } from "@nestjs/common"
+import { TokenExpiredError } from "jsonwebtoken"
+import { NotAcceptableException } from "@nestjs/common"
 
 export class JwtGuard extends AuthGuard('jwt') {
     handleRequest(err: any, user: any, info: any, context: any, status: any) {

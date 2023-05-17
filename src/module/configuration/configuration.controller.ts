@@ -2,8 +2,7 @@ import { Controller, Get, Put, Post, UseGuards, UsePipes, Req, Body, ValidationP
 import { ConfigurationService } from './configuration.service';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { Request } from 'express';
-import { EditBaseScheduleDTO, UpdateConfiguration } from './configuration.dto';
+import { UpdateConfiguration } from './configuration.dto';
 
 @Controller('config')
 export class ConfigurationController {

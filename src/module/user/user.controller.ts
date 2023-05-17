@@ -49,4 +49,10 @@ export class UserController {
     async getAgent() {
         return this.userService.allAgent();
     }
+
+    @Get('/agent/count')
+    @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
+    async getAgentCount() {
+        return this.userService.getAgentCount();
+    }
 }

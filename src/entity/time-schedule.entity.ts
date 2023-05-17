@@ -6,7 +6,7 @@ export class TimeSchedule {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => User, user => user.timeSchedule, { eager: true })
+    @ManyToOne(() => User, user => user.timeSchedule, { eager: true, onDelete: 'CASCADE' })
     agentUser: User;
 
     @Column({

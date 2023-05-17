@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, Body, Query, Param, Put } from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, Body, Query, Param, Put, Delete } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateTicketDTO, EditTicketDTO, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, EditTicketDTO, EditTicketStatusDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketService } from './ticket.service';
 
 
@@ -45,11 +45,34 @@ export class TicketController {
         const newTicket = await this.ticketService.store(payload, req.user);
         res.send(newTicket).status(201)
     }
+    @Delete(':id')
+    @UsePipes(ValidationPipe)
+    @UseGuards(JwtGuard)
+    async deleteTicket(@Param('id') id: any) {
+        return await this.ticketService.deleteData(id)
+    }
 
     @Put(':id/status')
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
-    async editStatus(@Body() payload: EditTicketDTO, @Param('id') id: string) {
-        return await this.ticketService.updateStatus(id, payload);
+    async editStatus(@Req() req: Request, @Body() payload: EditTicketStatusDTO, @Param('id') id: string) {
+        return await this.ticketService.updateStatus(id, payload.status, req.user);
+    }
+
+    @Get('monthly')
+    @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
+    async getMonthlyTicket(@Query('year') year: any) {
+        return await this.ticketService.getCountMonthlyTicket(year);
+    }
+
+    @Get('count/status')
+    @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
+    async getTicketCountEachStatus() {
+        return await this.ticketService.getTicketCountEachStatus();
+    }
+
+    @Get('completion-rate')
+    async getTicketCompletionRate() {
+        return this.ticketService.getTicketCompletionRate();
     }
 }

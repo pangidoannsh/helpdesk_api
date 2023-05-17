@@ -48,34 +48,27 @@ export class User {
     })
     level: string
 
-    @Column({
-        type: "bool",
-        name: "isActived",
-        default: false
-    })
-    isActived: boolean
-
-    @OneToMany(() => RefreshToken, refreshToken => refreshToken.user,{onDelete:'CASCADE'})
+    @OneToMany(() => RefreshToken, refreshToken => refreshToken.user, { onDelete: 'CASCADE' })
     refreshTokens: RefreshToken[]
 
-    @OneToMany(() => Ticket, ticket => ticket.userUpdate,{onDelete:'CASCADE'})
+    @OneToMany(() => Ticket, ticket => ticket.userUpdate, { onDelete: 'SET NULL' })
     ticketUpdater: Ticket[]
 
-    @OneToMany(() => Ticket, ticket => ticket.userOrderer,{onDelete:'CASCADE'})
+    @OneToMany(() => Ticket, ticket => ticket.userOrderer, { onDelete: 'CASCADE' })
     ticketOrderer: Ticket[]
 
-    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.userCreated,{onDelete:'CASCADE'})
+    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.userCreated, { onDelete: 'CASCADE' })
     messageCreater: TicketMessage[];
 
-    @OneToMany(() => Faq, faq => faq.userCreate,{onDelete:'SET NULL'})
+    @OneToMany(() => Faq, faq => faq.userCreate, { onDelete: 'SET NULL' })
     faqCreator: Faq[]
 
-    @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.agentUser,{onDelete:'CASCADE'})
+    @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.agentUser, { onDelete: 'CASCADE' })
     timeSchedule: TimeSchedule[];
 
-    @OneToMany(() => FungsiSchedule, fungsiSchedule => fungsiSchedule.agentUser,{onDelete:'CASCADE'})
+    @OneToMany(() => FungsiSchedule, fungsiSchedule => fungsiSchedule.agentUser, { onDelete: 'CASCADE' })
     fungsiSchedule: FungsiSchedule[];
 
-    @ManyToOne(() => Fungsi, fungsi => fungsi.user, { eager: true,onDelete:'SET NULL' })
+    @ManyToOne(() => Fungsi, fungsi => fungsi.user, { eager: true, onDelete: 'SET NULL' })
     fungsi: Fungsi
 }

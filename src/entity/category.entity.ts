@@ -22,6 +22,6 @@ export class Category {
     })
     parentOf: string
 
-    @OneToMany(() => Ticket, ticket => ticket.category)
+    @OneToMany(() => Ticket, ticket => ticket.category, { onDelete: 'CASCADE' })
     ticket: Ticket[]
 }
