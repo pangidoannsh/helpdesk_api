@@ -67,11 +67,11 @@ export class UserService implements OnModuleInit {
     }
 
     create(userData: CreateUserDTO) {
-        const { phone, name, password: rawPassword, fungsiId } = userData;
+        const { phone, name, password: rawPassword, fungsiId, level } = userData;
 
         try {
             const newUser = this.userRepository.create({
-                phone, name, password: encodePassword(rawPassword), fungsi: { id: fungsiId }
+                phone, name, password: encodePassword(rawPassword), fungsi: { id: fungsiId }, level
             })
             return this.userRepository.save(newUser);
         } catch (e) {

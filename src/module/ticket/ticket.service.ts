@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, NotAcceptableException } from '@nestjs/common';
 import { Ticket } from 'src/entity';
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
@@ -232,7 +232,7 @@ export class TicketService {
                         .map((ticket: any) => {
                             const differenceInMilliseconds = ticket.updatedAt.getTime() - ticket.createdAt.getTime();
                             const differenceInHours = Math.floor(differenceInMilliseconds / (1000 * 60 * 60));
-                            return { ticketId: ticket.id, time: differenceInHours }
+                            return { ticketId: ticket.id, time: differenceInHours !== 0 ? differenceInHours : 1 }
                         })
                         .reduce((prev: any, current: any) => {
                             // console.log(prev);
@@ -251,7 +251,7 @@ export class TicketService {
      */
     async store(payload: CreateTicketDTO, user: any) {
         const { subject, category, priority, fungsiId, message } = payload;
-        if(fungsiId === -1){
+        if (fungsiId === -1) {
             throw new NotAcceptableException('User Belum Memiliki Fungsi, Silahkan atur fungsi dari user terlebih dahulu')
         }
         const getTicketExpired = this.config.config.ticketDeadline;
@@ -301,8 +301,21 @@ export class TicketService {
             .getOne()
 
         if (status !== 'expired') {
-            const messageBuilder = "*HELPDESK IT*\n\n" +
-                "Laporan anda sedang DIPROSES!"
+            let messageBuilder = ''
+            switch (status) {
+                case 'process':
+                    messageBuilder = "*HELPDESK IT*\n\n" +
+                        "Laporan anda sedang DIPROSES!";
+                    break;
+                case 'feedback':
+                    messageBuilder = "*HELPDESK IT*\n\n" +
+                        "Laporan anda sudah Selesai diproses, mohon untuk memberikan FEEDBACK,\nTerimakasih!"
+                    break;
+                default:
+                case 'process':
+                    messageBuilder = "*HELPDESK IT*\n\n" +
+                        "Laporan anda sedang DIPROSES!";
+            }
             this.notification.sendMessageToTicketOrderer(result.userOrderer.phone, messageBuilder)
         }
 

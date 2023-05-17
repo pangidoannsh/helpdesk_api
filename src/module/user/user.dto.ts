@@ -9,6 +9,8 @@ export class CreateUserDTO {
     name: string;
     @IsNotEmpty()
     fungsiId: number;
+    @IsNotEmpty()
+    level: string;
 }
 
 export class LoginUserDTO {

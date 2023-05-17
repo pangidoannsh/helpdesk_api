@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe,
 import { Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserBySupervisorDTO } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -10,11 +10,6 @@ export class UserController {
     constructor(
         private readonly userService: UserService
     ) { }
-    
-    // @Get('reg')
-    // async reg(){
-    //     return this.userService.initSupervisor();
-    // }
     @Get()
     // @UseGuards(JwtGuard, new LevelGuard('supervisor'))
     async index() {
@@ -45,7 +40,7 @@ export class UserController {
     }
 
     @Get('/agent')
-    @UseGuards(JwtGuard, new LevelGuard("supervisor"))
+    @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
     async getAgent() {
         return this.userService.allAgent();
     }
