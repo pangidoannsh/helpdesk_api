@@ -16,16 +16,16 @@ export class Ticket {
     @Generated("uuid")
     slug: string
 
-    @ManyToOne(() => User, user => user.ticketUpdater)
+    @ManyToOne(() => User, user => user.ticketUpdater, { onDelete: 'SET NULL' })
     userUpdate: User
 
     @ManyToOne(() => User, user => user.ticketOrderer)
     userOrderer: User
 
-    @ManyToOne(() => Category, category => category.ticket, { eager: true })
+    @ManyToOne(() => Category, category => category.ticket, { eager: true, onDelete: 'CASCADE' })
     category: Category
 
-    @ManyToOne(() => Fungsi, fungsi => fungsi.ticket, { eager: true })
+    @ManyToOne(() => Fungsi, fungsi => fungsi.ticket, { eager: true, onDelete: 'CASCADE' })
     fungsi: Fungsi;
 
     @OneToOne(() => Feedback, feedback => feedback.ticket)
@@ -71,6 +71,8 @@ export class Ticket {
     })
     createdAt: Date
 
-    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.ticket, { onDelete: "CASCADE" })
+    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.ticket)
     ticketMessage: TicketMessage[]
+
+
 }

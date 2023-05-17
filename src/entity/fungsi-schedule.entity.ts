@@ -7,9 +7,9 @@ export class FungsiSchedule {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => User, user => user.fungsiSchedule, { eager: true })
+    @ManyToOne(() => User, user => user.fungsiSchedule, { eager: true, onDelete: 'CASCADE' })
     agentUser: User;
 
-    @ManyToOne(() => Fungsi, fungsi => fungsi.fungsiSchedule, { eager: true })
+    @ManyToOne(() => Fungsi, fungsi => fungsi.fungsiSchedule, { eager: true, onDelete: 'CASCADE' })
     fungsi: Fungsi
 }

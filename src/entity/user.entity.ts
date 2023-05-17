@@ -48,27 +48,27 @@ export class User {
     })
     level: string
 
-    @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
+    @OneToMany(() => RefreshToken, refreshToken => refreshToken.user, { onDelete: 'CASCADE' })
     refreshTokens: RefreshToken[]
 
-    @OneToMany(() => Ticket, ticket => ticket.userUpdate)
+    @OneToMany(() => Ticket, ticket => ticket.userUpdate, { onDelete: 'SET NULL' })
     ticketUpdater: Ticket[]
 
-    @OneToMany(() => Ticket, ticket => ticket.userOrderer)
+    @OneToMany(() => Ticket, ticket => ticket.userOrderer, { onDelete: 'CASCADE' })
     ticketOrderer: Ticket[]
 
-    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.userCreated)
+    @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.userCreated, { onDelete: 'CASCADE' })
     messageCreater: TicketMessage[];
 
-    @OneToMany(() => Faq, faq => faq.userCreate)
+    @OneToMany(() => Faq, faq => faq.userCreate, { onDelete: 'SET NULL' })
     faqCreator: Faq[]
 
-    @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.agentUser)
+    @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.agentUser, { onDelete: 'CASCADE' })
     timeSchedule: TimeSchedule[];
 
-    @OneToMany(() => FungsiSchedule, fungsiSchedule => fungsiSchedule.agentUser)
+    @OneToMany(() => FungsiSchedule, fungsiSchedule => fungsiSchedule.agentUser, { onDelete: 'CASCADE' })
     fungsiSchedule: FungsiSchedule[];
 
-    @ManyToOne(() => Fungsi, fungsi => fungsi.user, { eager: true })
+    @ManyToOne(() => Fungsi, fungsi => fungsi.user, { eager: true, onDelete: 'SET NULL' })
     fungsi: Fungsi
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from "@nestjs/typeorm";
 import { User as UserEntity } from 'src/entity';
 import { Repository } from "typeorm";
@@ -7,11 +7,30 @@ import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
     constructor(
         @InjectRepository(UserEntity)
         private userRepository: Repository<UserEntity>
     ) { }
+
+    async onModuleInit() {
+        this.initSupervisor()
+    }
+
+    async initSupervisor() {
+        const totalUser = await this.getTotalUser();
+
+        if (totalUser === 0) {
+            const phone = '0811';
+            const name = 'Edo Dev'
+            const level = 'supervisor';
+            const rawPassword = '123456';
+            const newUser = this.userRepository.create({
+                phone, name, password: encodePassword(rawPassword), level
+            })
+            return this.userRepository.save(newUser);
+        }
+    }
 
     async all() {
         let result: UserEntity[] = [];
@@ -21,7 +40,9 @@ export class UserService {
 
         return result.map(data => ({ ...data }));
     }
-
+    async getTotalUser() {
+        return await this.userRepository.count();
+    }
     async allEmployee() {
         return await this.userRepository.findBy({ level: "pegawai" });
     }

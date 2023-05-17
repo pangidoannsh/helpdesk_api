@@ -51,7 +51,7 @@ export class TicketService {
                 // logic : jika status tiket sama dengan "open" dan sekarang sudah melebihi batas waktu expired 
                 //         maka update status ke "expired"
                 if (data.status === "open" && data.expiredAt < currentDate) {
-                    return this.updateStatus(data.id, "expired");
+                    return this.updateStatus(data.id, "expired", null);
                 }
                 return data;
             })
@@ -202,6 +202,47 @@ export class TicketService {
 
     }
 
+    async getTicketCompletionRate(year?: number) {
+        const getData = await this.ticketRepository.createQueryBuilder('ticket')
+            .where('ticket.status = "feedback"')
+            .orWhere('ticket.status = "done"')
+            .leftJoinAndSelect('ticket.userUpdate', 'user')
+            .getMany();
+
+        const groupingDataByUser = getData
+            .reduce((result, ticket) => {
+                const userUpdate = ticket.userUpdate.id;
+                const existingGroup = result.find(group => group.userUpdate === userUpdate);
+
+                if (existingGroup) {
+                    existingGroup.tickets.push(ticket);
+                } else {
+
+                    result.push({ userUpdate, tickets: [ticket] });
+                }
+
+                return result;
+            }, []);
+
+        return groupingDataByUser
+            .map(group => {
+                return {
+                    agentId: group.userUpdate,
+                    timeRate: group.tickets
+                        .map((ticket: any) => {
+                            const differenceInMilliseconds = ticket.updatedAt.getTime() - ticket.createdAt.getTime();
+                            const differenceInHours = Math.floor(differenceInMilliseconds / (1000 * 60 * 60));
+                            return { ticketId: ticket.id, time: differenceInHours }
+                        })
+                        .reduce((prev: any, current: any) => {
+                            // console.log(prev);
+
+                            return prev + current.time
+                        }, 0) / group.tickets.length
+                }
+            })
+            ;
+    }
     /**
      * membuat ticket baru
      * @param payload 
@@ -242,10 +283,11 @@ export class TicketService {
      * @param status 
      * @returns 
      */
-    async updateStatus(id: string, status: string) {
+    async updateStatus(id: string, status: string, user: any) {
+        const userUpdateId = status !== 'done' && user ? user.id : null
 
         await this.ticketRepository.update({ id }, {
-            status
+            status, userUpdate: { id: userUpdateId }
         })
 
         const result = await this.ticketRepository.createQueryBuilder('ticket')

@@ -55,8 +55,8 @@ export class TicketController {
     @Put(':id/status')
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
-    async editStatus(@Body() payload: EditTicketStatusDTO, @Param('id') id: string) {
-        return await this.ticketService.updateStatus(id, payload.status);
+    async editStatus(@Req() req: Request, @Body() payload: EditTicketStatusDTO, @Param('id') id: string) {
+        return await this.ticketService.updateStatus(id, payload.status, req.user);
     }
 
     @Get('monthly')
@@ -69,5 +69,10 @@ export class TicketController {
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
     async getTicketCountEachStatus() {
         return await this.ticketService.getTicketCountEachStatus();
+    }
+
+    @Get('completion-rate')
+    async getTicketCompletionRate() {
+        return this.ticketService.getTicketCompletionRate();
     }
 }
