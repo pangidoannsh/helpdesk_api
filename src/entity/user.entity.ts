@@ -6,6 +6,7 @@ import { Ticket } from "./ticket.entity";
 import { TimeSchedule } from "./time-schedule.entity";
 import { Faq } from "./faq.entity";
 import { FungsiSchedule } from "./fungsi-schedule.entity";
+import { Feedback } from "./feedback.entity";
 
 @Entity()
 export class User {
@@ -71,4 +72,7 @@ export class User {
 
     @ManyToOne(() => Fungsi, fungsi => fungsi.user, { eager: true, onDelete: 'SET NULL' })
     fungsi: Fungsi
+
+    @OneToMany(() => Feedback, feedback => feedback.userCreate)
+    feedbackCreator: Feedback[]
 }

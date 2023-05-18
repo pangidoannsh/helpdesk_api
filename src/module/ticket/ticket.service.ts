@@ -293,12 +293,16 @@ export class TicketService {
      * @param status 
      * @returns 
      */
-    async updateStatus(id: string, status: string, user: any) {
+    async updateStatus(id: string, status: string, user?: any) {
         const userUpdateId = status !== 'done' && user ? user.id : null
 
-        await this.ticketRepository.update({ id }, {
-            status, userUpdate: { id: userUpdateId }
-        })
+        if (userUpdateId) {
+            await this.ticketRepository.update({ id }, {
+                status, userUpdate: { id: userUpdateId }
+            })
+        } else {
+            await this.ticketRepository.update({ id }, { status })
+        }
 
         const result = await this.ticketRepository.createQueryBuilder('ticket')
             .where('ticket.id = :id', { id })

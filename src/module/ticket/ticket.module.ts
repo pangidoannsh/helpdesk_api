@@ -13,5 +13,6 @@ import { ConfigurationService } from '../configuration/configuration.service';
     TicketMessageModule, NotificationModule, ConfigurationModule],
   controllers: [TicketController],
   providers: [TicketService],
+  exports: [TicketService]
 })
 export class TicketModule { }
