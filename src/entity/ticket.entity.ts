@@ -19,7 +19,7 @@ export class Ticket {
     @ManyToOne(() => User, user => user.ticketUpdater, { onDelete: 'SET NULL' })
     userUpdate: User
 
-    @ManyToOne(() => User, user => user.ticketOrderer)
+    @ManyToOne(() => User, user => user.ticketOrderer, { eager: true })
     userOrderer: User
 
     @ManyToOne(() => Category, category => category.ticket, { eager: true, onDelete: 'CASCADE' })

@@ -42,7 +42,7 @@ export class WhatsappService implements OnModuleInit {
                         fs.rmSync('./auth_info_baileys', { recursive: true, force: true })
                         console.log(`Device Logged Out, Please Scan Again.`);
                         this.client.logout();
-                        this.connectToWhatsApp(state, saveCreds);
+                        // this.connectToWhatsApp(state, saveCreds);
                         break;
                     case DisconnectReason.connectionClosed:
                         console.log("Connection closed, reconnecting....");
@@ -53,7 +53,7 @@ export class WhatsappService implements OnModuleInit {
                         this.connectToWhatsApp(state, saveCreds);
                         break;
                     default:
-                        console.log('default state');
+                        console.log(connection);
                         this.connectToWhatsApp(state, saveCreds);
                 }
             } else if (connection === 'open') {

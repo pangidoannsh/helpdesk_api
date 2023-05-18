@@ -14,6 +14,8 @@ export class CreateTicketDTO {
 
     @IsNotEmpty()
     fungsiId: any;
+
+    userOrdererId: string;
 }
 
 export class TicketFilterDTO {

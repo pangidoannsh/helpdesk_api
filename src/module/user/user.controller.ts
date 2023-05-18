@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe, Put, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateUserDTO, UpdateUserBySupervisorDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserProfileTO } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -14,6 +14,11 @@ export class UserController {
     // @UseGuards(JwtGuard, new LevelGuard('supervisor'))
     async index() {
         return this.userService.all()
+    }
+    @Get('phone')
+    @UseGuards(JwtGuard)
+    async getPhoneNumber(@Req() req: Request) {
+        return await this.userService.getPhoneById(req.user)
     }
     @Get('employee')
     @UseGuards(JwtGuard, new LevelGuard('agent', 'supervisor'))
@@ -33,21 +38,18 @@ export class UserController {
         res.status(201).send(updateData);
     }
 
-    @Put(':id/edit-access')
-    async editLevel(@Param("id") param: number, @Body() data: Partial<UpdateUserBySupervisorDTO>, @Res() res: Response) {
-        const updateUser = await this.userService.updateBySupervisor(param, data);
+    @Put(':id')
+    @UsePipes(ValidationPipe)
+    @UseGuards(JwtGuard)
+    async editProfile(@Param("id") param: number, @Body() data: Partial<UpdateUserProfileTO>, @Res() res: Response) {
+        const updateUser = await this.userService.updateProfile(param, data);
         res.status(201).send(updateUser)
     }
 
-    @Get('/agent')
+    @Get('agent')
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
     async getAgent() {
         return this.userService.allAgent();
     }
 
-    @Get('/agent/count')
-    @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
-    async getAgentCount() {
-        return this.userService.getAgentCount();
-    }
 }

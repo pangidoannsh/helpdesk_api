@@ -29,6 +29,17 @@ export class UserDTO {
     isActived: boolean
 }
 
-export class UpdateUserBySupervisorDTO {
+export class UpdateUserProfileTO {
+    @IsNotEmpty()
+    phone: string;
+
+    @IsNotEmpty()
+    name: string;
+
+    @IsNotEmpty()
     level: string;
+
+    @IsNotEmpty()
+    fungsiId: number;
+
 }

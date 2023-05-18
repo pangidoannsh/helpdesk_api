@@ -226,22 +226,24 @@ export class TicketService {
 
         return groupingDataByUser
             .map(group => {
+
                 return {
                     agentId: group.userUpdate,
                     timeRate: group.tickets
                         .map((ticket: any) => {
                             const differenceInMilliseconds = ticket.updatedAt.getTime() - ticket.createdAt.getTime();
                             const differenceInHours = Math.floor(differenceInMilliseconds / (1000 * 60 * 60));
+
                             return { ticketId: ticket.id, time: differenceInHours !== 0 ? differenceInHours : 1 }
                         })
                         .reduce((prev: any, current: any) => {
                             // console.log(prev);
 
                             return prev + current.time
-                        }, 0) / group.tickets.length
+                        }, 0) / group.tickets.length,
+                    // tickets: group.tickets
                 }
-            })
-            ;
+            });
     }
     /**
      * membuat ticket baru
@@ -249,8 +251,8 @@ export class TicketService {
      * @param user 
      * @returns 
      */
-    async store(payload: CreateTicketDTO, user: any) {
-        const { subject, category, priority, fungsiId, message } = payload;
+    async store(payload: CreateTicketDTO, user: any, isFromAgent?: boolean) {
+        const { subject, category, priority, fungsiId, message, userOrdererId } = payload;
         if (fungsiId === -1) {
             throw new NotAcceptableException('User Belum Memiliki Fungsi, Silahkan atur fungsi dari user terlebih dahulu')
         }
@@ -259,25 +261,30 @@ export class TicketService {
         const createTicket = this.ticketRepository.create({
             subject: subject,
             category: { id: category },
-            userOrderer: { id: user.id },
+            userOrderer: { id: isFromAgent ? userOrdererId : user.id },
             priority: priority,
             fungsi: { id: fungsiId },
             expiredAt: getExpiredDate(getTicketExpired)
         });
+        const newTicket = await this.ticketRepository.save(createTicket);
+        const createMessage = this.messageService.store(payload.message, newTicket.id, isFromAgent ? { id: userOrdererId } : user);
+
+        let ticketFromAgent: Ticket
+        if (isFromAgent) {
+            ticketFromAgent = await this.ticketRepository.findOneBy({ id: newTicket.id });
+        }
+        // console.log(ticketFromAgent);
+
         const messageBuilder = "*HELPDESK IT*\n\n" +
             "Laporan Baru!\n" +
-            `dari\t\t\t: ${user.name} (${user.fungsi?.name ?? 'undifined'})\n` +
-            `Subjek\t\t: ${subject}\n` +
-            `Keterangan\t: ${message}\n\n` +
+            `dari\t\t\t: ${isFromAgent ? ticketFromAgent.userOrderer.name : user.name} (${(isFromAgent ? ticketFromAgent.fungsi.name : user.fungsi?.name ?? 'undifined').toUpperCase()}) \n` +
+            `Subjek\t\t: ${subject} \n` +
+            `Keterangan\t: ${message} \n\n` +
             "Mohon Segera Diproses!"
 
         // Send Notification
         this.notification.sendMessageToAgent(fungsiId, messageBuilder);
-        if (createTicket) {
-            const newTicket = await this.ticketRepository.save(createTicket);
-            const createMessage = this.messageService.store(payload.message, newTicket.id, user);
-            return newTicket;
-        }
+        return newTicket;
     }
 
     /**

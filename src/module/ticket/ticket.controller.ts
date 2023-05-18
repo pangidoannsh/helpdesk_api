@@ -41,9 +41,13 @@ export class TicketController {
     @Post()
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard)
-    async create(@Req() req: Request, @Body() payload: CreateTicketDTO, @Res() res: Response) {
-        const newTicket = await this.ticketService.store(payload, req.user);
-        res.send(newTicket).status(201)
+    async create(@Req() req: any, @Body() payload: CreateTicketDTO, @Res() res: Response) {
+        const { level } = req.user;
+
+        // res.status(500).send('test')
+        const newTicket = await this.ticketService.store(payload, req.user, level !== 'pegawai');
+        res.status(201).send(newTicket)
+
     }
     @Delete(':id')
     @UsePipes(ValidationPipe)

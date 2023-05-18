@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User as UserEntity } from 'src/entity';
 import { Repository } from "typeorm";
 import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserDTO, UpdateUserBySupervisorDTO, UserDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserProfileTO, UserDTO } from './user.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 
 @Injectable()
@@ -50,10 +50,13 @@ export class UserService implements OnModuleInit {
         return await this.userRepository.findBy({ level: "agent" });
     }
 
-    async getAgentCount() {
-        return await this.userRepository.createQueryBuilder('user')
-            .where('user.level = "agent"').getCount();
+    async getPhoneById(user: any): Promise<string> {
+        const { id } = user;
+        return (await this.userRepository.createQueryBuilder('user')
+            .where('user.id = :id', { id })
+            .addSelect('user.phone').getOne()).phone
     }
+
     findById(id: number): Promise<UserEntity> {
         return this.userRepository.findOneBy({ id })
     }
@@ -86,9 +89,12 @@ export class UserService implements OnModuleInit {
         return await this.userRepository.findOneBy({ id });
     }
 
-    async updateBySupervisor(id: number, data: Partial<UpdateUserBySupervisorDTO>) {
+    async updateProfile(id: number, data: Partial<UpdateUserProfileTO>) {
+        const { fungsiId, level, name, phone } = data
+        console.log(data);
+
         await this.userRepository.update({ id }, {
-            level: data.level
+            level, fungsi: { id: fungsiId }, phone, name
         })
         const updateUser = await this.userRepository.findOneBy({ id });
         return updateUser;
