@@ -19,13 +19,17 @@ import { NotificationModule } from './module/notification/notification.module';
 import { SystemMiddleware } from './middleware/system.middleware';
 import { TicketController } from './module/ticket/ticket.controller';
 import { TicketMessageController } from './module/ticket-message/ticket-message.controller';
+import { TicketHistoryModule } from './module/ticket-history/ticket-history.module';
+import { TicketAssignmentModule } from './module/ticket-assignment/ticket-assignment.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
-    }), TypeOrmModule.forRoot({
+    }),
+    TypeOrmModule.forRoot({
       type: "mysql",
       host: "localhost",
       port: 3306,
@@ -34,10 +38,25 @@ import { TicketMessageController } from './module/ticket-message/ticket-message.
       database: "helpdesk_it_db",
       entities,
       synchronize: true
-    }), UserModule, TicketMessageModule, TicketModule, AuthModule, CategoryModule, FeedbackModule, ResponsesModule, FungsiModule,
-    ConfigurationModule, TimeScheduleModule, FaqModule, ScheduleModule, FungsiScheduleModule, NotificationModule],
-  controllers: [],
-  providers: []
+    }),
+    UserModule,
+    TicketMessageModule,
+    TicketModule,
+    AuthModule,
+    CategoryModule,
+    FeedbackModule,
+    ResponsesModule,
+    FungsiModule,
+    ConfigurationModule,
+    TimeScheduleModule,
+    FaqModule,
+    ScheduleModule,
+    FungsiScheduleModule,
+    NotificationModule,
+    TicketHistoryModule,
+    TicketAssignmentModule
+  ],
+  controllers: [AppController]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

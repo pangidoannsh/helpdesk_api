@@ -14,8 +14,11 @@ export class Faq {
     })
     description: string;
 
-    @ManyToOne(() => User, user => user.faqCreator, { eager: true, onDelete:'SET NULL' })
+    @ManyToOne(() => User, user => user.faqCreator, { eager: true, onDelete: 'SET NULL' })
     userCreate: User;
+
+    @ManyToOne(() => User, user => user.faqUpdate, { eager: true, onDelete: 'SET NULL' })
+    userUpdate: User;
 
     @CreateDateColumn()
     createdAt: Date;

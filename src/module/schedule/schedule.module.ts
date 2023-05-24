@@ -8,6 +8,7 @@ import { ScheduleService } from './schedule.service';
 @Module({
   imports: [FungsiScheduleModule, TimeScheduleModule, ConfigurationModule],
   controllers: [ScheduleController],
-  providers: [ScheduleService]
+  providers: [ScheduleService],
+  exports: [ScheduleService]
 })
 export class ScheduleModule { }

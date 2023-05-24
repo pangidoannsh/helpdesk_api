@@ -15,12 +15,13 @@ export class WhatsappService implements OnModuleInit {
     private client: any;
 
     async onModuleInit() {
-        const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+        // const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
 
-        this.connectToWhatsApp(state, saveCreds);
+        this.connectToWhatsApp();
     }
 
-    async connectToWhatsApp(state: AuthenticationState, saveCreds: () => void) {
+    async connectToWhatsApp() {
+        const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
 
         this.client = makeWASocket({
             auth: state,
@@ -31,8 +32,6 @@ export class WhatsappService implements OnModuleInit {
         this.client.ev.on('connection.update', async (update: any) => {
             const { connection, lastDisconnect } = update;
 
-            // connection === 'connecting' ? console.log(connection + ' Whatsapp API...') : ''
-
             if (connection === 'close') {
                 const reason = new Boom(lastDisconnect.error).output?.statusCode;
 
@@ -41,21 +40,25 @@ export class WhatsappService implements OnModuleInit {
                         // Delete Folder Auth Session
                         fs.rmSync('./auth_info_baileys', { recursive: true, force: true })
                         console.log(`Device Logged Out, Please Scan Again.`);
-                        this.client.logout();
+                        // await this.client.logout();
                         // this.connectToWhatsApp(state, saveCreds);
                         break;
                     case DisconnectReason.connectionClosed:
                         console.log("Connection closed, reconnecting....");
-                        this.connectToWhatsApp(state, saveCreds);
+                        // this.connectToWhatsApp();
                         break;
                     case DisconnectReason.connectionLost:
                         console.log("Connection Lost, reconnecting....");
-                        this.connectToWhatsApp(state, saveCreds);
+                        // this.connectToWhatsApp();
                         break;
                     default:
-                        console.log(connection);
-                        this.connectToWhatsApp(state, saveCreds);
+                        console.log("Connecting...");
+                    // this.connectToWhatsApp();
                 }
+                this.connectToWhatsApp()
+                // setTimeout(() => {
+                //     this.connectToWhatsApp()
+                // }, DisconnectReason.restartRequired ? 0 : 1000);
             } else if (connection === 'open') {
                 console.log(`Whatsapp ${this.client.user.id} Ready!`);
                 // console.log(this.client);

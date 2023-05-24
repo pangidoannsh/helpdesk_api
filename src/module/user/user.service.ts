@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User as UserEntity } from 'src/entity';
 import { Repository } from "typeorm";
 import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserDTO, UpdateUserProfileTO, UserDTO } from './user.dto';
+import { CreateUserDTO, UpdateUserProfileDTO, UserDTO } from './user.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class UserService implements OnModuleInit {
 
         if (totalUser === 0) {
             const phone = '0811';
-            const name = 'Edo Dev'
+            const name = 'Supervisor'
             const level = 'supervisor';
             const rawPassword = '123456';
             const newUser = this.userRepository.create({
@@ -89,9 +89,8 @@ export class UserService implements OnModuleInit {
         return await this.userRepository.findOneBy({ id });
     }
 
-    async updateProfile(id: number, data: Partial<UpdateUserProfileTO>) {
+    async updateProfile(id: number, data: Partial<UpdateUserProfileDTO>) {
         const { fungsiId, level, name, phone } = data
-        console.log(data);
 
         await this.userRepository.update({ id }, {
             level, fungsi: { id: fungsiId }, phone, name

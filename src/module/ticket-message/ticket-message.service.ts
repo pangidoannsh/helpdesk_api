@@ -31,7 +31,7 @@ export class TicketMessageService {
         return messageData;
     }
 
-    async store(content: string, ticketId: string, user: any, quote?: string) {
+    async store(content: string, ticketId: number, user: any, quote?: string) {
         const createMessage = this.ticketMessageRepo.create({
             content, ticket: { id: ticketId },
             userCreated: { id: user.id },

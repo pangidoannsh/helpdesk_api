@@ -7,6 +7,8 @@ import { TimeSchedule } from "./time-schedule.entity";
 import { Faq } from "./faq.entity";
 import { FungsiSchedule } from "./fungsi-schedule.entity";
 import { Feedback } from "./feedback.entity";
+import { TicketHistory } from "./ticket-history.entity";
+import { TicketAssignment } from "./ticket-assignment.entity";
 
 @Entity()
 export class User {
@@ -64,6 +66,9 @@ export class User {
     @OneToMany(() => Faq, faq => faq.userCreate, { onDelete: 'SET NULL' })
     faqCreator: Faq[]
 
+    @OneToMany(() => Faq, faq => faq.userUpdate, { onDelete: 'SET NULL' })
+    faqUpdate: Faq[]
+
     @OneToMany(() => TimeSchedule, timeSchedule => timeSchedule.agentUser, { onDelete: 'CASCADE' })
     timeSchedule: TimeSchedule[];
 
@@ -75,4 +80,10 @@ export class User {
 
     @OneToMany(() => Feedback, feedback => feedback.userCreate)
     feedbackCreator: Feedback[]
+
+    @OneToMany(() => TicketHistory, ticketHistory => ticketHistory.userCreated)
+    ticketHistoryCreator: TicketHistory[]
+
+    @OneToMany(() => TicketAssignment, ticketAssignment => ticketAssignment.user)
+    ticketAssignment: TicketAssignment[]
 }

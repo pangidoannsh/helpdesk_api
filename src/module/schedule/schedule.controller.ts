@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 
 @Controller('schedule')
@@ -9,6 +9,6 @@ export class ScheduleController {
 
     @Get()
     async getSchedule() {
-        return this.scheduleService.getDataSchedule()
+        return await this.scheduleService.getDataSchedule()
     }
 }

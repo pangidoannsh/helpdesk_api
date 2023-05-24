@@ -7,6 +7,8 @@ import { TicketMessageService } from '../ticket-message/ticket-message.service';
 import { displayDate, getExpiredDate } from 'src/utils/date';
 import { NotificationService } from '../notification/notification.service';
 import { ConfigurationService } from '../configuration/configuration.service';
+import { TicketHistoryService } from '../ticket-history/ticket-history.service';
+import { TicketAssignmentService } from '../ticket-assignment/ticket-assignment.service';
 
 @Injectable()
 export class TicketService {
@@ -16,7 +18,9 @@ export class TicketService {
         private readonly ticketRepository: Repository<Ticket>,
         private readonly messageService: TicketMessageService,
         private readonly notification: NotificationService,
-        private readonly config: ConfigurationService
+        private readonly config: ConfigurationService,
+        private readonly history: TicketHistoryService,
+        private readonly assignment: TicketAssignmentService,
     ) { }
 
     /**
@@ -140,6 +144,7 @@ export class TicketService {
             .leftJoinAndSelect('ticket.userOrderer', 'user')
             .leftJoinAndSelect('ticket.category', 'category')
             .leftJoinAndSelect('ticket.fungsi', 'fungsi')
+            .leftJoinAndSelect('ticket.assignment', 'ticket-assignment')
 
         this.filterQuery(queryBuilder, filter)
             .orderBy('ticket.status', 'ASC')
@@ -161,7 +166,7 @@ export class TicketService {
      * @returns 
      */
     async getByUser(user: any, filter: TicketFilterDTO) {
-        const { subject, category, fungsi, priority, status, offset, limit } = filter;
+        const { offset, limit } = filter;
 
         const userId = user.id;
         const queryBuilder: SelectQueryBuilder<Ticket> = this.ticketRepository.createQueryBuilder('ticket')
@@ -186,19 +191,13 @@ export class TicketService {
      * @param id 
      * @returns 
      */
-    async getOneById(id: string) {
+    async getOneById(id: number) {
 
         const getOne = await this.ticketRepository.findOne({
             where: { id },
-            relations: ['userOrderer', 'fungsi']
+            relations: ['userOrderer', 'fungsi', 'assignment', 'history']
         });
-        if (getOne) {
-            const { date, time } = displayDate(getOne.createdAt);
-            const { date: expiredDate, time: expiredTime } = displayDate(getOne.expiredAt ?? null);
-            return { ...getOne, createdAt: date + ' ' + time, expiredAt: expiredDate + ' ' + expiredTime };
-        } else {
-            return getOne;
-        }
+        return getOne
 
     }
 
@@ -241,7 +240,7 @@ export class TicketService {
 
                             return prev + current.time
                         }, 0) / group.tickets.length,
-                    // tickets: group.tickets
+                    count: group.tickets.length
                 }
             });
     }
@@ -253,9 +252,12 @@ export class TicketService {
      */
     async store(payload: CreateTicketDTO, user: any, isFromAgent?: boolean) {
         const { subject, category, priority, fungsiId, message, userOrdererId } = payload;
-        if (fungsiId === -1) {
+
+        // untuk mengecek apakah user yang membuat tiket memiliki fungsi atau tidak
+        if (fungsiId === -1 || fungsiId === null) {
             throw new NotAcceptableException('User Belum Memiliki Fungsi, Silahkan atur fungsi dari user terlebih dahulu')
         }
+
         const getTicketExpired = this.config.config.ticketDeadline;
 
         const createTicket = this.ticketRepository.create({
@@ -266,18 +268,19 @@ export class TicketService {
             fungsi: { id: fungsiId },
             expiredAt: getExpiredDate(getTicketExpired)
         });
+        // create new Ticket
         const newTicket = await this.ticketRepository.save(createTicket);
-        const createMessage = this.messageService.store(payload.message, newTicket.id, isFromAgent ? { id: userOrdererId } : user);
 
-        let ticketFromAgent: Ticket
-        if (isFromAgent) {
-            ticketFromAgent = await this.ticketRepository.findOneBy({ id: newTicket.id });
-        }
-        // console.log(ticketFromAgent);
+        // create new message of ticket
+        await this.messageService.store(payload.message, newTicket.id, isFromAgent ? { id: userOrdererId } : user);
+        const getNewTicket = await this.ticketRepository.findOneBy({ id: newTicket.id });
+
+        // create data ticket assignment
+        this.assignment.createFromSchedule(newTicket.id, isFromAgent ? getNewTicket.fungsi.id : user.fungsi?.id ?? null)
 
         const messageBuilder = "*HELPDESK IT*\n\n" +
             "Laporan Baru!\n" +
-            `dari\t\t\t: ${isFromAgent ? ticketFromAgent.userOrderer.name : user.name} (${(isFromAgent ? ticketFromAgent.fungsi.name : user.fungsi?.name ?? 'undifined').toUpperCase()}) \n` +
+            `dari\t\t\t: ${isFromAgent ? getNewTicket.userOrderer.name : user.name} (${(isFromAgent ? getNewTicket.fungsi.name : user.fungsi?.name ?? 'undifined').toUpperCase()}) \n` +
             `Subjek\t\t: ${subject} \n` +
             `Keterangan\t: ${message} \n\n` +
             "Mohon Segera Diproses!"
@@ -293,13 +296,15 @@ export class TicketService {
      * @param status 
      * @returns 
      */
-    async updateStatus(id: string, status: string, user?: any) {
+    async updateStatus(id: number, status: string, user?: any) {
         const userUpdateId = status !== 'done' && user ? user.id : null
 
         if (userUpdateId) {
             await this.ticketRepository.update({ id }, {
                 status, userUpdate: { id: userUpdateId }
             })
+            // untuk membuat history perubahan status dari tiket
+            this.history.createHistory(id, status, userUpdateId)
         } else {
             await this.ticketRepository.update({ id }, { status })
         }
@@ -323,9 +328,8 @@ export class TicketService {
                         "Laporan anda sudah Selesai diproses, mohon untuk memberikan FEEDBACK,\nTerimakasih!"
                     break;
                 default:
-                case 'process':
                     messageBuilder = "*HELPDESK IT*\n\n" +
-                        "Laporan anda sedang DIPROSES!";
+                        "Terimkasih telah mengisi FEEDBACK";
             }
             this.notification.sendMessageToTicketOrderer(result.userOrderer.phone, messageBuilder)
         }

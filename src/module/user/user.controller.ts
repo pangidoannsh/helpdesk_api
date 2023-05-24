@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe,
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateUserDTO, UpdateUserProfileTO } from './user.dto';
+import { CreateUserDTO, UpdateUserProfileDTO } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -31,17 +31,17 @@ export class UserController {
         return this.userService.create(payload);
     }
 
-    @Put()
-    @UseGuards(JwtGuard)
-    async editData(@Req() req: any, @Body() data: any, @Res() res: Response) {
-        const updateData = await this.userService.updateData(req.user.id, data);
-        res.status(201).send(updateData);
-    }
+    // @Put()
+    // @UseGuards(JwtGuard)
+    // async editData(@Req() req: any, @Body() data: any, @Res() res: Response) {
+    //     const updateData = await this.userService.updateData(req.user.id, data);
+    //     res.status(201).send(updateData);
+    // }
 
     @Put(':id')
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard)
-    async editProfile(@Param("id") param: number, @Body() data: Partial<UpdateUserProfileTO>, @Res() res: Response) {
+    async editProfile(@Param("id") param: number, @Body() data: UpdateUserProfileDTO, @Res() res: Response) {
         const updateUser = await this.userService.updateProfile(param, data);
         res.status(201).send(updateUser)
     }

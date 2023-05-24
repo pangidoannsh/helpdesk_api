@@ -11,10 +11,7 @@ export class TicketController {
     constructor(
         private readonly ticketService: TicketService
     ) { }
-    // @Get('phone')
-    // async getPhoneAgent(@Body('fungsiId') fungsiId: number) {
-    //     return await this.ticketService.getAgentSchedule(fungsiId);
-    // }
+
     @Get()
     @UseGuards(JwtGuard, new LevelGuard('supervisor', 'agent'))
     async getAll(@Query() query: TicketFilterDTO) {
@@ -34,7 +31,7 @@ export class TicketController {
 
     @Get('detail/:ticketId')
     @UseGuards(JwtGuard, new LevelGuard('supervisor', 'agent'))
-    async getDetail(@Param('ticketId') param: string) {
+    async getDetail(@Param('ticketId') param: number) {
         return await this.ticketService.getOneById(param);
     }
 
@@ -43,15 +40,13 @@ export class TicketController {
     @UseGuards(JwtGuard)
     async create(@Req() req: any, @Body() payload: CreateTicketDTO, @Res() res: Response) {
         const { level } = req.user;
-
-        // res.status(500).send('test')
         const newTicket = await this.ticketService.store(payload, req.user, level !== 'pegawai');
         res.status(201).send(newTicket)
 
     }
     @Delete(':id')
     @UsePipes(ValidationPipe)
-    @UseGuards(JwtGuard)
+    @UseGuards(JwtGuard, new LevelGuard('supervisor'))
     async deleteTicket(@Param('id') id: any) {
         return await this.ticketService.deleteData(id)
     }
@@ -59,7 +54,7 @@ export class TicketController {
     @Put(':id/status')
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard, new LevelGuard("supervisor", "agent"))
-    async editStatus(@Req() req: Request, @Body() payload: EditTicketStatusDTO, @Param('id') id: string) {
+    async editStatus(@Req() req: Request, @Body() payload: EditTicketStatusDTO, @Param('id') id: number) {
         return await this.ticketService.updateStatus(id, payload.status, req.user);
     }
 

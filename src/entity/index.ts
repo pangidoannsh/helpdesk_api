@@ -11,14 +11,16 @@ import { Configuration } from "./configuration.entity";
 import { TimeSchedule } from "./time-schedule.entity";
 import { Faq } from "./faq.entity";
 import { FungsiSchedule } from "./fungsi-schedule.entity";
+import { TicketHistory } from "./ticket-history.entity";
+import { TicketAssignment } from "./ticket-assignment.entity";
 
 const entities = {
     User, Ticket, RefreshToken, Category, TicketMessage, Feedback, Fungsi, Responses, Product, Configuration, TimeSchedule,
-    Faq, FungsiSchedule
+    Faq, FungsiSchedule, TicketHistory, TicketAssignment
 };
 
 export {
     User, Ticket, RefreshToken, Category, TicketMessage, Feedback, Fungsi, Responses, Product, Configuration, TimeSchedule,
-    Faq, FungsiSchedule
+    Faq, FungsiSchedule, TicketHistory, TicketAssignment
 };
 export default entities

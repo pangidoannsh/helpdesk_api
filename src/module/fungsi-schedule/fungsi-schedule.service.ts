@@ -17,7 +17,7 @@ export class FungsiScheduleService {
     async getScheduleByFungsi(fungsiId: number) {
         return this.scheduleRepository.createQueryBuilder('fungsi_schedule')
             .leftJoinAndSelect('fungsi_schedule.agentUser', 'user')
-            .select(['fungsi_schedule', 'user.phone'])
+            .select(['fungsi_schedule', 'user.phone', 'user.id'])
             .where('fungsi_schedule.fungsiId = :fungsiId', { fungsiId })
             .getMany();
     }

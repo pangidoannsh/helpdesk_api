@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { AgentScheduleService } from "./agent-schedule.service";
 import { WhatsappService } from "./whatsapp.service";
 import { ConfigurationService } from "../configuration/configuration.service";
+import { ScheduleService } from "../schedule/schedule.service";
 
 @Injectable()
 export class NotificationService {
     constructor(
-        private readonly agentSchedule: AgentScheduleService,
+        private readonly schedule: ScheduleService,
         private readonly whatsApp: WhatsappService,
         private readonly config: ConfigurationService
     ) { }
@@ -14,7 +14,7 @@ export class NotificationService {
     async sendMessageToAgent(fungsiId: number, message: string) {
         const isSendWhatsapp = this.config.config.isSendWhatsapp ?? (await this.config.getConfig()).BaseScheduleAgent
         if (isSendWhatsapp) {
-            const { baseSchedule, agentNumbers } = await this.agentSchedule.getPhoneDutyAgent(fungsiId);
+            const { baseSchedule, agentNumbers } = await this.schedule.getPhoneDutyAgent(fungsiId);
 
             agentNumbers.forEach(phone => {
                 this.whatsApp.send(phone, message)

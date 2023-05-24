@@ -57,7 +57,7 @@ export class TimeScheduleService {
     async getTodaySchedule() {
         return await this.scheduleRepository.createQueryBuilder('time_schedule')
             .leftJoinAndSelect('time_schedule.agentUser', 'user')
-            .select(['time_schedule', 'user.phone'])
+            .select(['time_schedule', 'user.phone', 'user.id'])
             .where('DATE(time_schedule.dutyTime) = DATE(NOW())')
             .getMany();
     }

@@ -18,7 +18,7 @@ export class FeedbackService {
             .select('feedback.value as value, COUNT(*) as count')
             .groupBy('feedback.value')
             .getRawMany();
-        return countFeedback.filter(data => data.value !== 0).map(feedback => {
+        const getCountFeedback = countFeedback.filter(data => data.value !== 0).map(feedback => {
             let label = '';
             switch (feedback.value) {
                 case 1:
@@ -32,8 +32,18 @@ export class FeedbackService {
                     break;
             }
 
-            return { value: feedback.value, label, count: feedback.count }
+            return {
+                value: feedback.value,
+                label,
+                count: feedback.count
+            }
         })
+        return getCountFeedback.map(data => (
+            {
+                ...data,
+                percentage: (data.count * 100 / getCountFeedback.reduce((a, b) => a + Number(b.count), 0)).toFixed(2)
+            }
+        ))
     }
     async findByTicket(ticketId: string) {
         const result = await this.feedbackRepo.createQueryBuilder('feedback')

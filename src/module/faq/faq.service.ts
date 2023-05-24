@@ -13,13 +13,12 @@ export class FaqService {
 
     async getAll(subject: string) {
         if (subject) {
-            const getFaq = await this.faqRepository.createQueryBuilder('faq')
-                .where('user.subject LIKE :subject', { subject: `%${subject}%` })
+            return await this.faqRepository.createQueryBuilder('faq')
+                .where('faq.subject LIKE :subject', { subject: `%${subject}%` })
                 .getMany()
-            return displayDateFromArrayObject(getFaq, "createdAt");
         }
 
-        return displayDateFromArrayObject(await this.faqRepository.find(), "createdAt");
+        return await this.faqRepository.find();
     }
 
     async store(subject: string, description: string, userCreateId: any) {
@@ -31,5 +30,13 @@ export class FaqService {
         } catch (e) {
 
         }
+    }
+
+    async update(id: any, subject: string, description: string, userUpdateId: any) {
+        const update = this.faqRepository.update({ id }, {
+            subject, description, userUpdate: { id: userUpdateId }
+        })
+
+        return update;
     }
 }

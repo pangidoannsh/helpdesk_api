@@ -2,25 +2,18 @@ import { OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server } from 'socket.io';
 import { TicketMessageService } from './ticket-message.service';
-import { CreateMessageDTO } from './ticket-message.dto';
 
 @WebSocketGateway({
     cors: {
-        origin: ['http://localhost:3000']
+        origin: '*'
     }
 })
-export class TicketMessageGateway implements OnModuleInit {
+export class TicketMessageGateway {
     @WebSocketServer()
     server: Server;
     constructor(
         private readonly ticketMessageService: TicketMessageService
     ) { }
-
-    onModuleInit() {
-        this.server.on('connection', (socket) => {
-            // console.log('connected');
-        })
-    }
     @SubscribeMessage('sendMessage')
     async onNewMessage(@MessageBody() body: any) {
         this.server.emit('receiveMessage', body)

@@ -4,13 +4,15 @@ import { Feedback } from "./feedback.entity";
 import { TicketMessage } from "./ticket-message.entity";
 import { User } from "./user.entity";
 import { Fungsi } from "./fungsi.entity";
+import { TicketHistory } from "./ticket-history.entity";
+import { TicketAssignment } from "./ticket-assignment.entity";
 
 @Entity()
 export class Ticket {
     @PrimaryGeneratedColumn({
         type: 'bigint'
     })
-    id: string
+    id: number
 
     @Column()
     @Generated("uuid")
@@ -25,7 +27,7 @@ export class Ticket {
     @ManyToOne(() => Category, category => category.ticket, { eager: true, onDelete: 'CASCADE' })
     category: Category
 
-    @ManyToOne(() => Fungsi, fungsi => fungsi.ticket, { eager: true, onDelete: 'CASCADE' })
+    @ManyToOne(() => Fungsi, fungsi => fungsi.ticket, { eager: true, onDelete: 'SET NULL' })
     fungsi: Fungsi;
 
     @OneToOne(() => Feedback, feedback => feedback.ticket)
@@ -74,5 +76,9 @@ export class Ticket {
     @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.ticket)
     ticketMessage: TicketMessage[]
 
+    @OneToMany(() => TicketHistory, history => history.ticket)
+    history: TicketHistory[]
 
+    @OneToMany(() => TicketAssignment, assignment => assignment.ticket)
+    assignment: TicketAssignment[]
 }

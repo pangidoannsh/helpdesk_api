@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsNumberString, Matches } from "class-validator";
 
 export class CreateUserDTO {
     @IsNotEmpty()
@@ -26,11 +26,11 @@ export class UserDTO {
     password: string;
     name: string;
     level: string;
-    isActived: boolean
 }
 
-export class UpdateUserProfileTO {
+export class UpdateUserProfileDTO {
     @IsNotEmpty()
+    @IsNumberString()
     phone: string;
 
     @IsNotEmpty()
