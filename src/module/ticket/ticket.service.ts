@@ -203,8 +203,9 @@ export class TicketService {
 
     async getTicketCompletionRate(year?: number) {
         const getData = await this.ticketRepository.createQueryBuilder('ticket')
-            .where('ticket.status = "feedback"')
-            .orWhere('ticket.status = "done"')
+            .where('ticket.finishAt IS NOT NULL')
+            // .where('ticket.status = "feedback"')
+            // .orWhere('ticket.status = "done"')
             .leftJoinAndSelect('ticket.userUpdate', 'user')
             .getMany();
 
@@ -224,25 +225,22 @@ export class TicketService {
             }, []);
 
         return groupingDataByUser
-            .map(group => {
+            .map(group => ({
+                agentId: group.userUpdate,
+                timeRate: group.tickets
+                    .map((ticket: any) => {
+                        const differenceInMilliseconds = ticket.finishAt.getTime() - ticket.createdAt.getTime();
+                        const differenceInHours = Math.floor(differenceInMilliseconds / (1000 * 60 * 60));
 
-                return {
-                    agentId: group.userUpdate,
-                    timeRate: group.tickets
-                        .map((ticket: any) => {
-                            const differenceInMilliseconds = ticket.updatedAt.getTime() - ticket.createdAt.getTime();
-                            const differenceInHours = Math.floor(differenceInMilliseconds / (1000 * 60 * 60));
+                        return { ticketId: ticket.id, time: differenceInHours !== 0 ? differenceInHours : 1 }
+                    })
+                    .reduce((prev: any, current: any) => {
+                        // console.log(prev);
 
-                            return { ticketId: ticket.id, time: differenceInHours !== 0 ? differenceInHours : 1 }
-                        })
-                        .reduce((prev: any, current: any) => {
-                            // console.log(prev);
-
-                            return prev + current.time
-                        }, 0) / group.tickets.length,
-                    count: group.tickets.length
-                }
-            });
+                        return prev + current.time
+                    }, 0) / group.tickets.length,
+                count: group.tickets.length
+            }));
     }
     /**
      * membuat ticket baru
@@ -250,7 +248,7 @@ export class TicketService {
      * @param user 
      * @returns 
      */
-    async store(payload: CreateTicketDTO, user: any, isFromAgent?: boolean) {
+    async store(payload: CreateTicketDTO, user: any, isFromAgent?: boolean, fileUploadName?: string) {
         const { subject, category, priority, fungsiId, message, userOrdererId } = payload;
 
         // untuk mengecek apakah user yang membuat tiket memiliki fungsi atau tidak
@@ -266,7 +264,8 @@ export class TicketService {
             userOrderer: { id: isFromAgent ? userOrdererId : user.id },
             priority: priority,
             fungsi: { id: fungsiId },
-            expiredAt: getExpiredDate(getTicketExpired)
+            expiredAt: getExpiredDate(getTicketExpired),
+            fileAttachment: fileUploadName ?? null
         });
         // create new Ticket
         const newTicket = await this.ticketRepository.save(createTicket);
@@ -297,14 +296,14 @@ export class TicketService {
      * @returns 
      */
     async updateStatus(id: number, status: string, user?: any) {
-        const userUpdateId = status !== 'done' && user ? user.id : null
+        const agentUpdateId = status !== 'done' && user ? user.id : null
 
-        if (userUpdateId) {
+        if (agentUpdateId) {
             await this.ticketRepository.update({ id }, {
-                status, userUpdate: { id: userUpdateId }
+                status, userUpdate: { id: agentUpdateId }, finishAt: status === 'feedback' ? new Date() : null
             })
             // untuk membuat history perubahan status dari tiket
-            this.history.createHistory(id, status, userUpdateId)
+            this.history.createHistory(id, status, agentUpdateId)
         } else {
             await this.ticketRepository.update({ id }, { status })
         }

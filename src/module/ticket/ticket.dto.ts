@@ -1,3 +1,4 @@
+import { ArgumentMetadata, Injectable, PipeTransform } from "@nestjs/common";
 import { IsNotEmpty } from "class-validator";
 
 export class CreateTicketDTO {
@@ -39,4 +40,13 @@ export class EditTicketDTO {
 export class EditTicketStatusDTO {
     @IsNotEmpty()
     status: string;
+}
+
+@Injectable()
+export class FileSizeValidationPipe implements PipeTransform {
+    transform(value: any, metadata: ArgumentMetadata) {
+        // "value" is an object containing the file's attributes and metadata
+        const oneKb = 1000;
+        return "value.size < oneKb";
+    }
 }

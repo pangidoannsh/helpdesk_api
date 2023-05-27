@@ -22,6 +22,7 @@ import { TicketMessageController } from './module/ticket-message/ticket-message.
 import { TicketHistoryModule } from './module/ticket-history/ticket-history.module';
 import { TicketAssignmentModule } from './module/ticket-assignment/ticket-assignment.module';
 import { AppController } from './app.controller';
+import { UserController } from './module/user/user.controller';
 
 @Module({
   imports: [

@@ -1,10 +1,15 @@
-import { Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, Body, Query, Param, Put, Delete } from '@nestjs/common';
+import {
+    Controller, Get, Post, Req, Res, UsePipes, ValidationPipe, UseGuards, Body, Query, Param, Put, Delete,
+    UploadedFile, UseInterceptors, ParseFilePipe, FileTypeValidator, BadRequestException
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateTicketDTO, EditTicketDTO, EditTicketStatusDTO, TicketFilterDTO } from './ticket.dto';
+import { CreateTicketDTO, EditTicketDTO, EditTicketStatusDTO, FileSizeValidationPipe, TicketFilterDTO } from './ticket.dto';
 import { TicketService } from './ticket.service';
-
+import { diskStorage } from 'multer';
+import { editFileName } from './file.helper';
 
 @Controller('ticket')
 export class TicketController {
@@ -38,10 +43,28 @@ export class TicketController {
     @Post()
     @UsePipes(ValidationPipe)
     @UseGuards(JwtGuard)
-    async create(@Req() req: any, @Body() payload: CreateTicketDTO, @Res() res: Response) {
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './file-uploads',
+            filename: editFileName
+        })
+    }))
+    async create(
+        @Req() req: any,
+        @Body() payload: CreateTicketDTO,
+        @Res() res: Response,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        console.log(file);
+
         const { level } = req.user;
-        const newTicket = await this.ticketService.store(payload, req.user, level !== 'pegawai');
-        res.status(201).send(newTicket)
+        if (file) {
+            const newTicket = await this.ticketService.store(payload, req.user, level !== 'pegawai', file.filename);
+            res.status(201).send(newTicket)
+        } else {
+            const newTicket = await this.ticketService.store(payload, req.user, level !== 'pegawai');
+            res.status(201).send(newTicket)
+        }
 
     }
     @Delete(':id')

@@ -36,7 +36,7 @@ export class Ticket {
     @Column()
     subject: string
 
-    @Column()
+    @Column({ nullable: true })
     fileAttachment: string
 
 
@@ -72,6 +72,9 @@ export class Ticket {
         type: 'datetime'
     })
     createdAt: Date
+
+    @Column({ nullable: true })
+    finishAt: Date;
 
     @OneToMany(() => TicketMessage, ticketMessage => ticketMessage.ticket)
     ticketMessage: TicketMessage[]
