@@ -1,10 +1,8 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BadGatewayException, Injectable, OnModuleInit } from '@nestjs/common';
 import makeWASocket, {
     useMultiFileAuthState,
     DisconnectReason,
-    isJidBroadcast,
-    AuthenticationState,
-    UserFacingSocketConfig
+    isJidBroadcast
 } from 'baileys-md'
 import * as fs from 'fs';
 import pino from 'pino';
@@ -56,13 +54,8 @@ export class WhatsappService implements OnModuleInit {
                     // this.connectToWhatsApp();
                 }
                 this.connectToWhatsApp()
-                // setTimeout(() => {
-                //     this.connectToWhatsApp()
-                // }, DisconnectReason.restartRequired ? 0 : 1000);
             } else if (connection === 'open') {
                 console.log(`Whatsapp ${this.client.user.id} Ready!`);
-                // console.log(this.client);
-
             }
 
         })
@@ -75,13 +68,7 @@ export class WhatsappService implements OnModuleInit {
         try {
             return await this.client.sendMessage(`62${waPhone}@s.whatsapp.net`, { text: message })
         } catch (e) {
-            console.log('(Catch) Failed sending to ' + phone);
-            console.log(e);
-
-            return {
-                status: false,
-                response: e,
-            }
+            throw new BadGatewayException(e)
         }
     }
 
