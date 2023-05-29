@@ -20,10 +20,7 @@ export class TicketMessage {
         type: "text"
     })
     content: string;
-    @Column({
-        type: 'text'
-    })
-    quote: string
+
     @CreateDateColumn({
         type: "datetime"
     })
