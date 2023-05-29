@@ -42,4 +42,5 @@ export class UpdateUserProfileDTO {
     @IsNotEmpty()
     fungsiId: number;
 
+    password: string;
 }

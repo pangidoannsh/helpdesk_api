@@ -23,7 +23,6 @@ export class TicketController {
         return await this.ticketService.getByDashboard(query);
     }
     @Get('length')
-    @UseGuards(JwtGuard, new LevelGuard('supervisor', 'agent'))
     getLengthOfAll(@Query() query: TicketFilterDTO) {
         return this.ticketService.getLengthAll(query);
     }

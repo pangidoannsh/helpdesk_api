@@ -90,11 +90,17 @@ export class UserService implements OnModuleInit {
     }
 
     async updateProfile(id: number, data: Partial<UpdateUserProfileDTO>) {
-        const { fungsiId, level, name, phone } = data
+        const { fungsiId, level, name, phone, password } = data
 
-        await this.userRepository.update({ id }, {
-            level, fungsi: { id: fungsiId }, phone, name
-        })
+        if (password) {
+            await this.userRepository.update({ id }, {
+                level, fungsi: { id: fungsiId }, phone, name, password: encodePassword(password)
+            })
+        } else {
+            await this.userRepository.update({ id }, {
+                level, fungsi: { id: fungsiId }, phone, name
+            })
+        }
         const updateUser = await this.userRepository.findOneBy({ id });
         return updateUser;
     }
