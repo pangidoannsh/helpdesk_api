@@ -26,6 +26,7 @@ export class TimeScheduleController {
     @UseGuards(JwtGuard, new LevelGuard('supervisor'))
     @UsePipes(ValidationPipe)
     async addAgent(@Req() req: Request, @Body() payload: AddAgentOnSchedule) {
+        // console.log("controller : ", payload.dutyTime);
         return await this.scheduleService.storeAgent(payload.agentId, payload.dutyTime);
     }
 

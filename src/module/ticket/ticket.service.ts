@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
 import { CreateTicketDTO, TicketFilterDTO } from './ticket.dto';
 import { TicketMessageService } from '../ticket-message/ticket-message.service';
-import { displayDate, getExpiredDate } from 'src/utils/date';
+import { getExpiredDate } from 'src/utils/date';
 import { NotificationService } from '../notification/notification.service';
 import { ConfigurationService } from '../configuration/configuration.service';
 import { TicketHistoryService } from '../ticket-history/ticket-history.service';
@@ -45,17 +45,17 @@ export class TicketService {
     /**
      * berfungsi untuk mengecek expired ticket dan mengubah status ticket yang sudah lewat batas expired dari open ke expired
      * @param allData 
-     * @param orderByStatus : menentukan apakah data yang sudah di-update statusnya akan di diurutkan berdasarkan status?
+     * @param orderByStatus menentukan apakah data yang sudah di-update statusnya akan di diurutkan berdasarkan status?
      * @returns 
      */
     async checkExpirated(allData: Ticket[], orderByStatus?: boolean) {
         const currentDate = new Date();
         const result = await Promise.all(
-            allData.map(data => {
+            allData.map(async data => {
                 // logic : jika status tiket sama dengan "open" dan sekarang sudah melebihi batas waktu expired 
                 //         maka update status ke "expired"
                 if (data.status === "open" && data.expiredAt < currentDate) {
-                    return this.updateStatus(data.id, "expired", null);
+                    return await this.updateStatus(data.id, "expired", null);
                 }
                 return data;
             })
@@ -139,7 +139,7 @@ export class TicketService {
      * @returns 
      */
     async getByDashboard(filter?: TicketFilterDTO) {
-        const { subject, category, fungsi, priority, status, limit, offset } = filter;
+        const { limit, offset } = filter;
         const queryBuilder = this.ticketRepository.createQueryBuilder('ticket')
             .leftJoinAndSelect('ticket.userOrderer', 'user')
             .leftJoinAndSelect('ticket.category', 'category')
@@ -147,11 +147,12 @@ export class TicketService {
             .leftJoinAndSelect('ticket.assignment', 'ticket-assignment')
 
         this.filterQuery(queryBuilder, filter)
-            .orderBy('ticket.status', 'ASC')
+            .addOrderBy('ticket.status', 'ASC')
             .addOrderBy('ticket.priority', 'DESC')
             .addOrderBy('ticket.createdAt', 'DESC')
 
         if (offset) queryBuilder.offset(offset);
+
         if (limit) queryBuilder.limit(limit);
 
         const allData = await queryBuilder.getMany();
@@ -296,9 +297,9 @@ export class TicketService {
      * @returns 
      */
     async updateStatus(id: number, status: string, user?: any) {
-        const agentUpdateId = status !== 'done' && user ? user.id : null
+        const agentUpdateId = status !== 'done' && user !== null ? user.id : null
 
-        if (agentUpdateId) {
+        if (agentUpdateId !== null) {
             await this.ticketRepository.update({ id }, {
                 status, userUpdate: { id: agentUpdateId }, finishAt: status === 'feedback' ? new Date() : null
             })

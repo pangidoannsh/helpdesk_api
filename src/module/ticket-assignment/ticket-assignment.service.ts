@@ -29,6 +29,8 @@ export class TicketAssignmentService {
         const idAgents = await this.schedule.getAssignAgentId(userFungsiId);
 
         idAgents.forEach(async id => {
+            console.log('assigned to ', id);
+
             await this.create(ticketId, id)
         })
     }

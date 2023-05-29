@@ -27,6 +27,7 @@ export class WhatsappService implements OnModuleInit {
             shouldIgnoreJid: jid => isJidBroadcast(jid),
             logger: pino({ level: 'silent' })
         })
+
         this.client.ev.on('connection.update', async (update: any) => {
             const { connection, lastDisconnect } = update;
 

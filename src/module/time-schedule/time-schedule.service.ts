@@ -42,6 +42,7 @@ export class TimeScheduleService {
             .getMany();
     }
     async storeAgent(agentId: any, dutyTime: any) {
+
         try {
             const create = this.scheduleRepository.create({
                 agentUser: { id: agentId },
