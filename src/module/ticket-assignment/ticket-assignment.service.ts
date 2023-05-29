@@ -28,8 +28,8 @@ export class TicketAssignmentService {
     async createFromSchedule(ticketId: number, userFungsiId: number) {
         const idAgents = await this.schedule.getAssignAgentId(userFungsiId);
 
-        idAgents.forEach(id => {
-            this.create(ticketId, id)
+        idAgents.forEach(async id => {
+            await this.create(ticketId, id)
         })
     }
 }

@@ -17,8 +17,8 @@ export class NotificationService {
             if (isSendWhatsapp) {
                 const { baseSchedule, agentNumbers } = await this.schedule.getPhoneDutyAgent(fungsiId);
 
-                agentNumbers.forEach(phone => {
-                    this.whatsApp.send(phone, message)
+                agentNumbers.forEach(async phone => {
+                    await this.whatsApp.send(phone, message)
                 });
             }
         } catch (e) {

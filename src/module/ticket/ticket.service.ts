@@ -275,7 +275,7 @@ export class TicketService {
         const getNewTicket = await this.ticketRepository.findOneBy({ id: newTicket.id });
 
         // create data ticket assignment
-        this.assignment.createFromSchedule(newTicket.id, isFromAgent ? getNewTicket.fungsi.id : user.fungsi?.id ?? null)
+        await this.assignment.createFromSchedule(newTicket.id, isFromAgent ? getNewTicket.fungsi.id : user.fungsi?.id ?? null)
 
         const messageBuilder = "*HELPDESK IT*\n\n" +
             "Laporan Baru!\n" +

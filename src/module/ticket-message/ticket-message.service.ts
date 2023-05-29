@@ -37,19 +37,19 @@ export class TicketMessageService {
             userCreated: { id: user.id }
         })
         const saveTicket = await this.ticketMessageRepo.save(createMessage);
-        const newTicket = await this.ticketMessageRepo.findOneBy({ id: saveTicket.id })
+        return await this.ticketMessageRepo.findOneBy({ id: saveTicket.id })
         // .createQueryBuilder('message')
         //     .leftJoinAndSelect('message.userCreated', 'user')
         //     .select(['message.id', "message.ticketId", 'message.content', 'message.createdAt', 'user.id', 'user.name', 'user.level'])
         //     .where("message.id = :id", { id: saveTicket.id })
         //     .getOne()
 
-        const { createdAt } = newTicket;
-        if (createdAt) {
-            const { date, time } = displayDate(createdAt);
-            return { ...newTicket, createdAt: date + ' ' + time }
-        }
+        // const { createdAt } = newTicket;
+        // if (createdAt) {
+        //     const { date, time } = displayDate(createdAt);
+        //     return { ...newTicket, createdAt: date + ' ' + time }
+        // }
 
-        return newTicket
+        // return newTicket
     }
 }

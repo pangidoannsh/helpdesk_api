@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FungsiScheduleService } from '../fungsi-schedule/fungsi-schedule.service';
 import { TimeScheduleService } from '../time-schedule/time-schedule.service';
 import { ConfigurationService } from '../configuration/configuration.service';
@@ -20,15 +20,11 @@ export class ScheduleService {
     }
 
     async getAgentAssignment(fungsiId: number) {
-        try {
-            const baseSchedule = this.configService.config?.BaseScheduleAgent ?? (await this.configService.getConfig()).BaseScheduleAgent;
-            if (baseSchedule === 'fungsi') {
-                return await this.fungsiSchedule.getScheduleByFungsi(fungsiId)
-            } else {
-                return await this.timeSchedule.getTodaySchedule();
-            }
-        } catch (e) {
-            throw new BadGatewayException(e);
+        const baseSchedule = this.configService.config?.BaseScheduleAgent ?? (await this.configService.getConfig()).BaseScheduleAgent;
+        if (baseSchedule === 'fungsi') {
+            return await this.fungsiSchedule.getScheduleByFungsi(fungsiId)
+        } else {
+            return await this.timeSchedule.getTodaySchedule();
         }
     }
 
