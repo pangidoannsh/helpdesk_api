@@ -39,6 +39,17 @@ export class ScheduleService {
         return { baseSchedule, agentNumbers };
     }
 
+    // async getAgentAssigned(fungsiId: number) {
+    //     const baseSchedule = this.configService.config.BaseScheduleAgent ??
+    //         (await this.configService.getConfig()).BaseScheduleAgent;
+    //     const agentAssignment = await this.getAgentAssignment(fungsiId);
+
+    //     const agentNumbers = [];
+    //     agentAssignment.forEach((schedule: any) => {
+    //         agentNumbers.push(schedule.agentUser.phone);
+    //     })
+    //     return { baseSchedule, agentNumbers };
+    // }
     async getAssignAgentId(fungsiId: number) {
         const agentAssignment = await this.getAgentAssignment(fungsiId);
         return agentAssignment
