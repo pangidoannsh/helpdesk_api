@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotAcceptableException } from '@nestjs/common';
+import { BadGatewayException, HttpException, Injectable, NotAcceptableException } from '@nestjs/common';
 import { Ticket } from 'src/entity';
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository, SelectQueryBuilder } from "typeorm"
@@ -285,8 +285,12 @@ export class TicketService {
             "Mohon Segera Diproses!"
 
         // Send Notification
-        this.notification.sendMessageToAgent(fungsiId, messageBuilder);
-        return newTicket;
+        try {
+            this.notification.sendMessageToAgent(fungsiId, messageBuilder);
+            return newTicket;
+        } catch (e) {
+            throw new BadGatewayException(e);
+        }
     }
 
     /**

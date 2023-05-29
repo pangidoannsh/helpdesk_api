@@ -54,7 +54,6 @@ export class TicketController {
         @Res() res: Response,
         @UploadedFile() file: Express.Multer.File
     ) {
-        console.log(file);
 
         const { level } = req.user;
         if (file) {
