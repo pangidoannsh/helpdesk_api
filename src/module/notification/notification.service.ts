@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadGatewayException, Injectable } from "@nestjs/common";
 import { WhatsappService } from "./whatsapp.service";
 import { ConfigurationService } from "../configuration/configuration.service";
 import { ScheduleService } from "../schedule/schedule.service";
@@ -12,13 +12,17 @@ export class NotificationService {
     ) { }
 
     async sendMessageToAgent(fungsiId: number, message: string) {
-        const isSendWhatsapp = this.config.config.isSendWhatsapp ?? (await this.config.getConfig()).BaseScheduleAgent
-        if (isSendWhatsapp) {
-            const { baseSchedule, agentNumbers } = await this.schedule.getPhoneDutyAgent(fungsiId);
+        try {
+            const isSendWhatsapp = this.config.config.isSendWhatsapp ?? (await this.config.getConfig()).BaseScheduleAgent
+            if (isSendWhatsapp) {
+                const { baseSchedule, agentNumbers } = await this.schedule.getPhoneDutyAgent(fungsiId);
 
-            agentNumbers.forEach(phone => {
-                this.whatsApp.send(phone, message)
-            });
+                agentNumbers.forEach(phone => {
+                    this.whatsApp.send(phone, message)
+                });
+            }
+        } catch (e) {
+            throw new BadGatewayException(e)
         }
     }
     async sendMessageToTicketOrderer(phone: string, message: string) {
