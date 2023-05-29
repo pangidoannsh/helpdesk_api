@@ -26,7 +26,7 @@ export class TicketMessageController {
     @UsePipes(ValidationPipe)
     async createMessage(@Req() req: Request, @Body() payload: CreateMessageDTO, @Res() res: Response) {
         // console.log(req.user);
-        const newMessage = await this.ticketMessageService.store(payload.content, payload.ticketId, req.user, payload.quoteTo);
+        const newMessage = await this.ticketMessageService.store(payload.content, payload.ticketId, req.user);
         this.socketClient.emit('sendMessage', newMessage);
         res.send(newMessage);
     }
