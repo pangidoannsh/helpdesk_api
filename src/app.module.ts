@@ -32,7 +32,7 @@ import { UserController } from './module/user/user.controller';
     }),
     TypeOrmModule.forRoot({
       type: "mysql",
-      host: "localhost",
+      host: "db",
       port: 3306,
       username: "root",
       password: "",
