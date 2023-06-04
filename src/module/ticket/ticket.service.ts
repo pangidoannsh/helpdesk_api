@@ -120,6 +120,9 @@ export class TicketService {
         return lengthData;
     }
 
+    async getAllId() {
+        return await this.ticketRepository.createQueryBuilder('ticket').select('ticket.id').getMany();
+    }
     async all(filter?: TicketFilterDTO) {
         const { subject, category, fungsi, priority, status } = filter;
         const queryBuilder = this.ticketRepository.createQueryBuilder('ticket')
@@ -201,7 +204,11 @@ export class TicketService {
         return getOne
 
     }
-
+    /**
+     * mengambil rata-rata penyelesaian ticket oleh agen
+     * @param year 
+     * @returns 
+     */
     async getTicketCompletionRate(year?: number) {
         const getData = await this.ticketRepository.createQueryBuilder('ticket')
             .where('ticket.finishAt IS NOT NULL')
@@ -312,6 +319,7 @@ export class TicketService {
         const result = await this.ticketRepository.createQueryBuilder('ticket')
             .where('ticket.id = :id', { id })
             .leftJoinAndSelect('ticket.userOrderer', 'user')
+            .leftJoinAndSelect('ticket.category', 'category')
             .leftJoinAndSelect('ticket.fungsi', 'fungsi')
             .addSelect(['user.phone'])
             .getOne()

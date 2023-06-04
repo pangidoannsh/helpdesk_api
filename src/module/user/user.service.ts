@@ -20,15 +20,20 @@ export class UserService implements OnModuleInit {
     async initSupervisor() {
         const totalUser = await this.getTotalUser();
 
-        if (totalUser === 0) {
-            const phone = '0811';
-            const name = 'Supervisor'
-            const level = 'supervisor';
-            const rawPassword = '123456';
-            const newUser = this.userRepository.create({
-                phone, name, password: encodePassword(rawPassword), level
-            })
-            return this.userRepository.save(newUser);
+        try {
+            if (totalUser === 0) {
+                const phone = '0811';
+                const name = 'Supervisor'
+                const level = 'supervisor';
+                const rawPassword = '123456';
+                const newUser = this.userRepository.create({
+                    phone, name, password: encodePassword(rawPassword), level
+                })
+                return this.userRepository.save(newUser);
+            }
+        } catch (e) {
+            console.log('Supervisor created on phone 0811');
+
         }
     }
 

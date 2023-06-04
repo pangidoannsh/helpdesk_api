@@ -1,7 +1,6 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, NotAcceptableException, BadRequestException } from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { TimeSchedule } from 'src/entity';
-import { displayDateFromArrayObject, displayDateFromObject } from 'src/utils/date';
 import { Repository } from 'typeorm';
 import { QueryGetSchedule } from './time-schedule.dto';
 
@@ -42,19 +41,26 @@ export class TimeScheduleService {
             .getMany();
     }
     async storeAgent(agentId: any, dutyTime: any) {
+        const time = dutyTime.split(" ")[0]
+        const agentExist = (await this.scheduleRepository.createQueryBuilder('time_schedule')
+            .andWhere('time_schedule.agentUserId = :agentId', { agentId })
+            .andWhere("DATE_FORMAT(time_schedule.dutyTime, '%Y-%m-%d') = :time", { time })
+            .getOne()) ? true : false;
 
-        try {
-            const create = this.scheduleRepository.create({
-                agentUser: { id: agentId },
-                dutyTime
-            });
-            const saved = await this.scheduleRepository.save(create);
-            return await this.scheduleRepository.findOneBy({ id: saved.id });
-        } catch (e) {
-            throw new NotAcceptableException("Agent Sudah Ada di Jadwal")
+        if (agentExist) {
+            throw new NotAcceptableException(`Agent Sudah Ditugaskan Pada Tanggal ${time}!`)
         }
-    }
 
+        const create = this.scheduleRepository.create({
+            agentUser: { id: agentId },
+            dutyTime
+        });
+
+        const saved = await this.scheduleRepository.save(create);
+        return await this.scheduleRepository.findOneBy({ id: saved.id });
+
+
+    }
     async getTodaySchedule() {
         return await this.scheduleRepository.createQueryBuilder('time_schedule')
             .leftJoinAndSelect('time_schedule.agentUser', 'user')
