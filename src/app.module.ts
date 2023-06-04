@@ -33,7 +33,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     TypeOrmModule.forRoot({
       type: "mysql",
-      host: "localhost",
+      host: "dev",
       port: 3306,
       username: "root",
       password: "",
