@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './module/user/user.module';
 import { TicketModule } from './module/ticket/ticket.module';
@@ -22,13 +22,16 @@ import { TicketMessageController } from './module/ticket-message/ticket-message.
 import { TicketHistoryModule } from './module/ticket-history/ticket-history.module';
 import { TicketAssignmentModule } from './module/ticket-assignment/ticket-assignment.module';
 import { AppController } from './app.controller';
-import { UserController } from './module/user/user.controller';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot({
       ttl: 60,
       limit: 10,
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true
     }),
     TypeOrmModule.forRoot({
       type: "mysql",
