@@ -14,11 +14,11 @@ export class UserService implements OnModuleInit {
     ) { }
 
     async onModuleInit() {
-        this.initSupervisor()
+        await this.initSupervisor()
     }
 
     async initSupervisor() {
-        const totalUser = await this.getTotalUser();
+        const totalUser = await this.userRepository.count();
 
         if (totalUser === 0) {
             const phone = '0811';
