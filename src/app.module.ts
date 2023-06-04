@@ -30,9 +30,7 @@ import { ConfigModule } from '@nestjs/config';
       ttl: 60,
       limit: 10,
     }),
-    ConfigModule.forRoot({
-      isGlobal: true
-    }),
+    // ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: "mysql",
       host: "db",
