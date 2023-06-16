@@ -312,6 +312,7 @@ export class TicketService {
         const result = await this.ticketRepository.createQueryBuilder('ticket')
             .where('ticket.id = :id', { id })
             .leftJoinAndSelect('ticket.userOrderer', 'user')
+            .leftJoinAndSelect('ticket.category', 'category')
             .leftJoinAndSelect('ticket.fungsi', 'fungsi')
             .addSelect(['user.phone'])
             .getOne()

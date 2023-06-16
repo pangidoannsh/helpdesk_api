@@ -39,6 +39,7 @@ services:
       MYSQL_DATABASE: helpdesk_it_db
       MYSQL_PASSWORD: null
       MYSQL_ALLOW_EMPTY_PASSWORD: true
+      TZ: Asia/Jakarta
       # MYSQL_USER: root
     ports:
       - 3306:3306

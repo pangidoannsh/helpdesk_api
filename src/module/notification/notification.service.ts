@@ -16,6 +16,7 @@ export class NotificationService {
             const isSendWhatsapp = this.config.config.isSendWhatsapp ?? (await this.config.getConfig()).BaseScheduleAgent
             if (isSendWhatsapp) {
                 const { baseSchedule, agentNumbers } = await this.schedule.getPhoneDutyAgent(fungsiId);
+                console.log(agentNumbers);
 
                 agentNumbers.forEach(async phone => {
                     await this.whatsApp.send(phone, message)
