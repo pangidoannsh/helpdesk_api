@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Req, Res, UsePipes, ValidationPipe,
 import { Request, Response } from 'express';
 import { JwtGuard } from 'src/guard/jwt.guard';
 import { LevelGuard } from 'src/guard/level.guard';
-import { CreateUserDTO, UpdateUserProfileDTO } from './user.dto';
+import { CreateUserDTO, UpdatePasswordDTO, UpdateUserProfileDTO } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -30,7 +30,13 @@ export class UserController {
     register(@Body() payload: CreateUserDTO) {
         return this.userService.create(payload);
     }
-
+    @Put('password')
+    @UsePipes(ValidationPipe)
+    @UseGuards(JwtGuard)
+    async editPassword(@Req() req: any, @Body() data: UpdatePasswordDTO) {
+        const updatePassword = await this.userService.updatePassword(req.user.id, data);
+        return updatePassword;
+    }
     // @Put()
     // @UseGuards(JwtGuard)
     // async editData(@Req() req: any, @Body() data: any, @Res() res: Response) {

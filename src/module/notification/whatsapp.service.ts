@@ -69,7 +69,7 @@ export class WhatsappService implements OnModuleInit {
         try {
             return await this.client.sendMessage(`62${waPhone}@s.whatsapp.net`, { text: message })
         } catch (e) {
-            throw new BadGatewayException(e)
+            throw new BadGatewayException("Whatsapp Error")
         }
     }
 

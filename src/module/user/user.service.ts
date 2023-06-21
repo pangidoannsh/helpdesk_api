@@ -2,9 +2,9 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from "@nestjs/typeorm";
 import { User as UserEntity } from 'src/entity';
 import { Repository } from "typeorm";
-import { encodePassword } from 'src/utils/bcrypt';
-import { CreateUserDTO, UpdateUserProfileDTO, UserDTO } from './user.dto';
-import { BadRequestException } from '@nestjs/common/exceptions';
+import { comparePassword, encodePassword } from 'src/utils/bcrypt';
+import { CreateUserDTO, UpdatePasswordDTO, UpdateUserProfileDTO, UserDTO } from './user.dto';
+import { BadRequestException, NotAcceptableException } from '@nestjs/common/exceptions';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -62,8 +62,15 @@ export class UserService implements OnModuleInit {
             .addSelect('user.phone').getOne()).phone
     }
 
-    findById(id: number): Promise<UserEntity> {
-        return this.userRepository.findOneBy({ id })
+    async findById(id: number, isFullData?: boolean): Promise<UserEntity> {
+        if (isFullData) {
+            return await this.userRepository.createQueryBuilder('user')
+                .leftJoinAndSelect('user.fungsi', 'fungsi')
+                .addSelect('user.password')
+                .where({ id })
+                .getOne();
+        }
+        return await this.userRepository.findOneBy({ id })
     }
 
     findByPhone(phone: string) {
@@ -95,18 +102,30 @@ export class UserService implements OnModuleInit {
     }
 
     async updateProfile(id: number, data: Partial<UpdateUserProfileDTO>) {
-        const { fungsiId, level, name, phone, password } = data
+        const { fungsiId, level, name, phone } = data
 
-        if (password) {
-            await this.userRepository.update({ id }, {
-                level, fungsi: { id: fungsiId }, phone, name, password: encodePassword(password)
-            })
-        } else {
-            await this.userRepository.update({ id }, {
-                level, fungsi: { id: fungsiId }, phone, name
-            })
-        }
+        await this.userRepository.update({ id }, {
+            level, fungsi: { id: fungsiId }, phone, name
+        })
         const updateUser = await this.userRepository.findOneBy({ id });
         return updateUser;
+    }
+
+    async updatePassword(id: number, data: UpdatePasswordDTO) {
+        const { currentPassword, newPassword } = data;
+        const userDB = await this.findById(id, true);
+        console.log(userDB);
+
+        if (userDB) {
+            if (comparePassword(currentPassword, userDB.password)) {
+                this.userRepository.update({ id }, {
+                    password: encodePassword(newPassword)
+                })
+                return "Berhasil"
+            } else {
+                throw new NotAcceptableException("Password Salah")
+            }
+        }
+        throw new BadRequestException("Gagal");
     }
 }
