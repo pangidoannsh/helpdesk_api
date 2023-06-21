@@ -22,6 +22,10 @@ export class TicketController {
     async getAll(@Query() query: TicketFilterDTO) {
         return await this.ticketService.getByDashboard(query);
     }
+    @Get('id')
+    getAllId() {
+        return this.ticketService.getAllId();
+    }
     @Get('length')
     getLengthOfAll(@Query() query: TicketFilterDTO) {
         return this.ticketService.getLengthAll(query);

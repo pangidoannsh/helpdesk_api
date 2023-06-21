@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv'
 dotenv.config();
 
 export const jwtConfig: JwtModuleOptions = {
-    secret: process.env.SECRET,
+    secret: process.env.SECRET || 'jwt-secret',
     signOptions: {
         expiresIn: '12h'
     }
