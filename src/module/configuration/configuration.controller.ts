@@ -29,4 +29,9 @@ export class ConfigurationController {
         return await this.configService.updateConfig(payload);
     }
 
+    @Get('system-mode')
+    async getSystemMode() {
+        return this.configService.config?.systemMode ?? (await this.configService.getConfig()).systemMode;
+    }
+
 }

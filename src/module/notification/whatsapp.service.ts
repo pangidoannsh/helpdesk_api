@@ -7,6 +7,8 @@ import makeWASocket, {
 import * as fs from 'fs';
 import pino from 'pino';
 import { Boom } from '@hapi/boom';
+import * as dotenv from 'dotenv';
+import axios from 'axios';
 
 @Injectable()
 export class WhatsappService implements OnModuleInit {
@@ -63,9 +65,30 @@ export class WhatsappService implements OnModuleInit {
 
         this.client.ev.on('creds.update', saveCreds);
     }
-
+    /**
+     * function to send whatsapp message
+     * @param phone phone number who receive the message
+     * @param message content of message
+     */
     async send(phone: string, message: string) {
+        // dotenv.config();
+
+        // // DIBAWAH INI MERUPAKAN CODE UNTUK KIRIM PESAN DENGAN WHATSAPP API BPS
+        // axios.post((process.env.WA_API_HOST ?? "http://127.0.0.1:8000") + "/outbox", {
+        //     phone,
+        //     message,
+        //     chattype: 1
+        // },
+        //     {
+        //         headers: { Authorization: "Bearer " + process.env.TOKEN_WA_API ?? "" }
+        //     }
+        // ).catch(err => {
+        //     console.log(err.response?.data ?? err);
+        // })
+
+        // DIBAWAH INI ADALAH CODE UNTUK KIRIM PESAN DENGAN WHATSAPP API BAWAAN BACKEND INI
         const waPhone = phone.substring(1);
+
         try {
             return await this.client.sendMessage(`62${waPhone}@s.whatsapp.net`, { text: message })
         } catch (e) {
