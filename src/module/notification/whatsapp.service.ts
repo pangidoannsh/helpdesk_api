@@ -17,7 +17,7 @@ export class WhatsappService implements OnModuleInit {
     async onModuleInit() {
         // const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
 
-        this.connectToWhatsApp();
+        // this.connectToWhatsApp();
     }
 
     async connectToWhatsApp() {
@@ -74,26 +74,26 @@ export class WhatsappService implements OnModuleInit {
         // dotenv.config();
 
         // // DIBAWAH INI MERUPAKAN CODE UNTUK KIRIM PESAN DENGAN WHATSAPP API BPS
-        // axios.post((process.env.WA_API_HOST ?? "http://127.0.0.1:8000") + "/outbox", {
-        //     phone,
-        //     message,
-        //     chattype: 1
-        // },
-        //     {
-        //         headers: { Authorization: "Bearer " + process.env.TOKEN_WA_API ?? "" }
-        //     }
-        // ).catch(err => {
-        //     console.log(err.response?.data ?? err);
-        // })
+        axios.post((process.env.WA_API_HOST ?? "http://127.0.0.1:8000") + "/outbox", {
+            phone,
+            message,
+            chattype: 1
+        },
+            {
+                headers: { Authorization: "Bearer " + process.env.TOKEN_WA_API ?? "" }
+            }
+        ).catch(err => {
+            console.log(err.response?.data ?? err);
+        })
 
         // DIBAWAH INI ADALAH CODE UNTUK KIRIM PESAN DENGAN WHATSAPP API BAWAAN BACKEND INI
-        const waPhone = phone.substring(1);
+        // const waPhone = phone.substring(1);
 
-        try {
-            return await this.client.sendMessage(`62${waPhone}@s.whatsapp.net`, { text: message })
-        } catch (e) {
-            throw new BadGatewayException("Whatsapp Error")
-        }
+        // try {
+        //     return await this.client.sendMessage(`62${waPhone}@s.whatsapp.net`, { text: message })
+        // } catch (e) {
+        //     throw new BadGatewayException("Whatsapp Error")
+        // }
     }
 
 }
