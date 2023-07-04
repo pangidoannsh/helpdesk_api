@@ -27,7 +27,7 @@
 Repositori ini merupakan Backend untuk mengembangkan API dari aplikasi Ticketing System Helpdesk IT dengan repositori helpdesk_app sebagai frontend.
 
 ## Installation
-Clone atau download repositori ini lalu ketikkan pada terminal sebagai berikut
+Clone atau download repositori ini lalu ketikkan pada terminal sebagai berikut untuk menginstal dependency package pada program ini
 ```bash
 $ yarn
 ```
