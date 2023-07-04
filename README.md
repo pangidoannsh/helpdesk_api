@@ -49,7 +49,7 @@ $ yarn run start:prod
 ```
 
 ## Konfigurasi pada modul app
-app.module.ts merupakan file untuk melakukan konfigurasi koneksi database serta registrasi setiap modul yang ada. app.module.ts berada pada direktori /src.
+app.module.ts merupakan file untuk melakukan konfigurasi koneksi database serta registrasi setiap modul yang ada. app.module.ts berada pada direktori `/src/app.module.ts`.
 untuk melakukan konfigurasi koneksi database, lakukan perubahan  pada function TypeOrmModule,forRoot({}), dengan mengubah nama host, username, password, dan nama dari database.
 
 ![Screenshot_30](https://github.com/pangidoannsh/helpdesk_api/assets/74215225/ee87b769-493e-428f-9f02-459421c34bea)
