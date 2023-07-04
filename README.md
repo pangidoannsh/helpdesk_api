@@ -22,52 +22,33 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# Ticketing System Helpdesk IT API
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Repositori ini merupakan Backend untuk mengembangkan API dari aplikasi Ticketing System Helpdesk IT dengan repositori helpdesk_app sebagai frontend.
 
 ## Installation
-
+Clone atau download repositori ini lalu ketikkan pada terminal sebagai berikut
 ```bash
-$ yarn install
+$ yarn
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ yarn run start
+$ yarn start
 
-# watch mode
+# watch mode : untuk auto restart ketika ada perubahan code
 $ yarn dev
 
 # production mode
+# build
+$ yarn build
+# running
 $ yarn run start:prod
 ```
 
-## Test
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+## Konfigurasi pada modul app
+app.module.ts merupakan file untuk melakukan konfigurasi koneksi database serta registrasi setiap modul yang ada. app.module.ts berada pada direktori /src.
+untuk melakukan konfigurasi koneksi database, lakukan perubahan  pada function TypeOrmModule,forRoot({}), dengan mengubah nama host, username, password, dan nama dari database.
+![Screenshot_30](https://github.com/pangidoannsh/helpdesk_api/assets/74215225/ee87b769-493e-428f-9f02-459421c34bea)
