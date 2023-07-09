@@ -15,8 +15,6 @@ export class WhatsappService implements OnModuleInit {
     private client: any;
 
     async onModuleInit() {
-        // const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
-
         this.connectToWhatsApp();
     }
 
